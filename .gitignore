@@ -1,0 +1,62 @@
+# ─────────────────────────────────────────────
+# Project Plan (excluded from version control)
+# ─────────────────────────────────────────────
+HIS-project-plan.md
+
+# ─────────────────────────────────────────────
+# Spring Boot / Maven (his-backend)
+# ─────────────────────────────────────────────
+his-backend/target/
+his-backend/.mvn/wrapper/maven-wrapper.jar
+his-backend/*.jar
+his-backend/*.war
+
+# Maven wrapper (keep mvnw but ignore jar)
+!his-backend/.mvn/wrapper/maven-wrapper.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse / STS
+.classpath
+.project
+.settings/
+.springBeans
+
+# VS Code Java
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# application secrets (override locally)
+his-backend/src/main/resources/application-local.properties
+his-backend/src/main/resources/application-prod.properties
+
+# ─────────────────────────────────────────────
+# Angular (his-frontend)
+# ─────────────────────────────────────────────
+his-frontend/node_modules/
+his-frontend/dist/
+his-frontend/.angular/
+his-frontend/.sass-cache/
+his-frontend/coverage/
+
+# Angular environment overrides (keep templates)
+his-frontend/src/environments/environment.prod.ts
+
+# npm / yarn lockfiles (keep package-lock.json)
+his-frontend/yarn.lock
+
+# ─────────────────────────────────────────────
+# General
+# ─────────────────────────────────────────────
+*.log
+*.tmp
+*.swp
+*.orig

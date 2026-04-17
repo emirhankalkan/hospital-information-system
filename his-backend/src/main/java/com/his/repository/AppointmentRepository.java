@@ -12,20 +12,23 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    List<Appointment> findByPatientId(Long patientId);
+    List<Appointment> findAllByOrderByAppointmentDateAscAppointmentTimeAsc();
 
-    List<Appointment> findByDoctorId(Long doctorId);
+    List<Appointment> findByPatientIdOrderByAppointmentDateDescAppointmentTimeDesc(Long patientId);
+
+    List<Appointment> findByDoctorIdOrderByAppointmentDateAscAppointmentTimeAsc(Long doctorId);
 
     List<Appointment> findByStatus(AppointmentStatus status);
 
     List<Appointment> findByAppointmentDate(LocalDate date);
 
-    List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDate date);
+    List<Appointment> findByDoctorIdAndAppointmentDateOrderByAppointmentTimeAsc(Long doctorId, LocalDate date);
 
     List<Appointment> findByPatientIdAndStatus(Long patientId, AppointmentStatus status);
 
     List<Appointment> findByDoctorIdAndStatus(Long doctorId, AppointmentStatus status);
 
     boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(Long doctorId, LocalDate date, LocalTime time);
+    
+    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTimeAndIdNot(Long doctorId, LocalDate date, LocalTime time, Long id);
 }
-

@@ -26,5 +26,10 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 
     List<Patient> findByBloodType(String bloodType);
+    
+    Optional<Patient> findByIdAndIsDeletedFalse(Long id);
+    
+    Optional<Patient> findByUserIdAndIsDeletedFalse(Long userId);
+    
+    Optional<Patient> findByTcNoAndIsDeletedFalse(String tcNo);
 }
-

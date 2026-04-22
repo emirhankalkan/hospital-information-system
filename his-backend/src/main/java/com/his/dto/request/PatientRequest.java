@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PatientRequest {
 
-    @NotNull(message = "Kullanıcı ID boş olamaz")
+    // Sadece CREATE sırasında zorunludur; UPDATE sırasında kullanılmaz ve göz ardı edilir
     private Long userId;
 
     @NotBlank(message = "Ad boş olamaz")
@@ -26,7 +26,7 @@ public class PatientRequest {
     @Size(max = 50, message = "Soyad en fazla 50 karakter olabilir")
     private String lastName;
 
-    @NotBlank(message = "TC Kimlik No boş olamaz")
+    // Sadece CREATE sırasında zorunludur; UPDATE sırasında mapper tarafından değiştirilmez (iş kuralı)
     @Size(min = 11, max = 11, message = "TC Kimlik No 11 karakter olmalıdır")
     private String tcNo;
 

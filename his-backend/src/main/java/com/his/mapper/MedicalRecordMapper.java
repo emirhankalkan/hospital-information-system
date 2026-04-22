@@ -73,4 +73,17 @@ public class MedicalRecordMapper {
 
         return response;
     }
+
+    /**
+     * Mevcut MedicalRecord entity'sini request verileriyle günceller (UPDATE işlemi).
+     * Appointment kasıtlı olarak güncellenmez — tıbbi kayıt hangi randevuya bağlıysa
+     * o ilişki değişmez. Bu bir iş kuralıdır.
+     */
+    public void updateEntityFromRequest(MedicalRecordRequest request, MedicalRecord record) {
+        if (request == null || record == null) return;
+
+        record.setDiagnosis(request.getDiagnosis());
+        record.setTreatmentNotes(request.getTreatmentNotes());
+        record.setPrescriptionNotes(request.getPrescriptionNotes());
+    }
 }

@@ -76,4 +76,16 @@ public class AppointmentMapper {
 
         return response;
     }
+
+    /**
+     * Mevcut Appointment entity'sini request verileriyle günceller (UPDATE işlemi).
+     * Patient, Doctor ve status kasıtlı olarak güncellenmez — bunlar ayrı iş kurallarıyla yönetilir.
+     */
+    public void updateEntityFromRequest(AppointmentRequest request, Appointment appointment) {
+        if (request == null || appointment == null) return;
+
+        appointment.setAppointmentDate(request.getAppointmentDate());
+        appointment.setAppointmentTime(request.getAppointmentTime());
+        appointment.setNotes(request.getNotes());
+    }
 }

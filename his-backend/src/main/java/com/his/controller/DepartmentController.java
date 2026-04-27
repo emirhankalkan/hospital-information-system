@@ -1,5 +1,6 @@
 package com.his.controller;
 
+import com.his.dto.ApiResponse;
 import com.his.dto.request.DepartmentRequest;
 import com.his.dto.response.DepartmentResponse;
 import com.his.entity.Department;
@@ -23,54 +24,54 @@ public class DepartmentController {
 
     // PUBLIC — tüm roller görebilir
     @GetMapping
-    public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
+    public ResponseEntity<ApiResponse<List<DepartmentResponse>>> getAllDepartments() {
         List<DepartmentResponse> departments = departmentService.findAll()
                 .stream()
                 .map(departmentMapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(departments);
+        return ResponseEntity.ok(ApiResponse.success("Departmanlar listelendi", departments));
     }
 
     // PUBLIC
     @GetMapping("/{id}")
-    public ResponseEntity<DepartmentResponse> getDepartmentById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<DepartmentResponse>> getDepartmentById(@PathVariable Long id) {
         Department department = departmentService.findById(id);
-        return ResponseEntity.ok(departmentMapper.toResponse(department));
+        return ResponseEntity.ok(ApiResponse.success("Departman bulundu", departmentMapper.toResponse(department)));
     }
 
     // PUBLIC
     @GetMapping("/search")
-    public ResponseEntity<List<DepartmentResponse>> searchDepartments(@RequestParam String keyword) {
+    public ResponseEntity<ApiResponse<List<DepartmentResponse>>> searchDepartments(@RequestParam String keyword) {
         List<DepartmentResponse> results = departmentService.searchDepartments(keyword)
                 .stream()
                 .map(departmentMapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(results);
+        return ResponseEntity.ok(ApiResponse.success("Arama sonuçları getirildi", results));
     }
 
     // ADMIN only
     @PostMapping
-    public ResponseEntity<DepartmentResponse> createDepartment(@Valid @RequestBody DepartmentRequest request) {
+    public ResponseEntity<ApiResponse<DepartmentResponse>> createDepartment(@Valid @RequestBody DepartmentRequest request) {
         Department department = departmentMapper.toEntity(request);
         Department saved = departmentService.createDepartment(department);
-        return ResponseEntity.status(HttpStatus.CREATED).body(departmentMapper.toResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Departman oluşturuldu", departmentMapper.toResponse(saved)));
     }
 
     // ADMIN only
     @PutMapping("/{id}")
-    public ResponseEntity<DepartmentResponse> updateDepartment(
+    public ResponseEntity<ApiResponse<DepartmentResponse>> updateDepartment(
             @PathVariable Long id,
             @Valid @RequestBody DepartmentRequest request) {
         Department existing = departmentService.findById(id);
         departmentMapper.updateEntityFromRequest(request, existing);
         Department updated = departmentService.updateDepartment(id, existing);
-        return ResponseEntity.ok(departmentMapper.toResponse(updated));
+        return ResponseEntity.ok(ApiResponse.success("Departman güncellendi", departmentMapper.toResponse(updated)));
     }
 
     // ADMIN only
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteDepartment(@PathVariable Long id) {
         departmentService.deleteDepartment(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Departman silindi"));
     }
 }

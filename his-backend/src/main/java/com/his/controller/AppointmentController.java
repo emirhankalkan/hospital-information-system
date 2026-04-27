@@ -1,5 +1,6 @@
 package com.his.controller;
 
+import com.his.dto.ApiResponse;
 import com.his.dto.request.AppointmentRequest;
 import com.his.dto.request.AppointmentStatusRequest;
 import com.his.dto.response.AppointmentResponse;
@@ -34,98 +35,96 @@ public class AppointmentController {
     private final UserService userService;
 
     // ADMIN, RECEPTIONIST, DOCTOR
+    // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping
-    public ResponseEntity<List<AppointmentResponse>> getAllAppointments() {
+    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAllAppointments() {
         List<AppointmentResponse> appointments = appointmentService.findAll()
                 .stream()
                 .map(appointmentMapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(appointments);
+        return ResponseEntity.ok(ApiResponse.success("Randevular listelendi", appointments));
     }
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping("/{id}")
-    public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<AppointmentResponse>> getAppointmentById(@PathVariable Long id) {
         Appointment appointment = appointmentService.findById(id);
-        return ResponseEntity.ok(appointmentMapper.toResponse(appointment));
+        return ResponseEntity.ok(ApiResponse.success("Randevu bulundu", appointmentMapper.toResponse(appointment)));
     }
 
     // ADMIN, RECEPTIONIST, DOCTOR — hastaya ait randevular
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByPatient(@PathVariable Long patientId) {
+    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAppointmentsByPatient(@PathVariable Long patientId) {
         List<AppointmentResponse> appointments = appointmentService.findByPatientId(patientId)
                 .stream()
                 .map(appointmentMapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(appointments);
+        return ResponseEntity.ok(ApiResponse.success("Hastanın randevuları listelendi", appointments));
     }
 
     // DOCTOR — kendi randevuları
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByDoctor(@PathVariable Long doctorId) {
+    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAppointmentsByDoctor(@PathVariable Long doctorId) {
         List<AppointmentResponse> appointments = appointmentService.findByDoctorId(doctorId)
                 .stream()
                 .map(appointmentMapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(appointments);
+        return ResponseEntity.ok(ApiResponse.success("Doktorun randevuları listelendi", appointments));
     }
 
     // DOCTOR — belirli güne ait randevular (günlük takvim)
     @GetMapping("/doctor/{doctorId}/date")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByDoctorAndDate(
+    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAppointmentsByDoctorAndDate(
             @PathVariable Long doctorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<AppointmentResponse> appointments = appointmentService.findByDoctorIdAndDate(doctorId, date)
                 .stream()
                 .map(appointmentMapper::toResponse)
                 .toList();
-        return ResponseEntity.ok(appointments);
+        return ResponseEntity.ok(ApiResponse.success("Doktorun günlük randevuları listelendi", appointments));
     }
 
     // RECEPTIONIST, PATIENT — randevu oluştur
     @PostMapping
-    public ResponseEntity<AppointmentResponse> bookAppointment(@Valid @RequestBody AppointmentRequest request) {
+    public ResponseEntity<ApiResponse<AppointmentResponse>> bookAppointment(@Valid @RequestBody AppointmentRequest request) {
         Patient patient = patientService.findById(request.getPatientId());
         Doctor doctor = doctorService.findById(request.getDoctorId());
 
-        // createdByUserId opsiyoneldir (hastanın kendisi rezerve edebilir)
-        User createdByUser = null;
-        if (request.getCreatedByUserId() != null) {
-            createdByUser = userService.findById(request.getCreatedByUserId());
-        }
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        User createdByUser = userService.findByUsername(username);
 
         Appointment appointment = appointmentMapper.toEntity(request, patient, doctor, createdByUser);
         Appointment saved = appointmentService.bookAppointment(appointment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(appointmentMapper.toResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Randevu oluşturuldu", appointmentMapper.toResponse(saved)));
     }
 
     // RECEPTIONIST, DOCTOR — tarih/saat/notlar güncelle
     // TODO JWT sonrası: sadece randevuyu oluşturan veya ADMIN güncelleyebilmeli
     @PutMapping("/{id}")
-    public ResponseEntity<AppointmentResponse> updateAppointment(
+    public ResponseEntity<ApiResponse<AppointmentResponse>> updateAppointment(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentRequest request) {
         Appointment existing = appointmentService.findById(id);
         appointmentMapper.updateEntityFromRequest(request, existing);
         Appointment updated = appointmentService.updateAppointment(id, existing);
-        return ResponseEntity.ok(appointmentMapper.toResponse(updated));
+        return ResponseEntity.ok(ApiResponse.success("Randevu güncellendi", appointmentMapper.toResponse(updated)));
     }
 
     // DOCTOR, RECEPTIONIST — durum güncelle (SCHEDULED → COMPLETED / CANCELLED)
     // TODO JWT sonrası: @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST','ADMIN')")
     @PatchMapping("/{id}/status")
-    public ResponseEntity<AppointmentResponse> updateStatus(
+    public ResponseEntity<ApiResponse<AppointmentResponse>> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentStatusRequest request) {
         Appointment updated = appointmentService.updateAppointmentStatus(id, request.getStatus());
-        return ResponseEntity.ok(appointmentMapper.toResponse(updated));
+        return ResponseEntity.ok(ApiResponse.success("Randevu durumu güncellendi", appointmentMapper.toResponse(updated)));
     }
 
     // RECEPTIONIST, PATIENT — randevu iptal et
     // TODO JWT sonrası: hasta sadece kendi randevusunu iptal edebilmeli
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelAppointment(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> cancelAppointment(@PathVariable Long id) {
         appointmentService.cancelAppointment(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Randevu iptal edildi"));
     }
 }

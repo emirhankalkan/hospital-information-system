@@ -52,6 +52,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+        log.error("Geçersiz durum: {} - Path: {}", ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex, WebRequest request) {
         log.error("Beklenmeyen bir hata oluştu: Path: {}", request.getDescription(false), ex);

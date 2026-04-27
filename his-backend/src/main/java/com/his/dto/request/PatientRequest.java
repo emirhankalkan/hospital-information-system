@@ -27,6 +27,7 @@ public class PatientRequest {
     private String lastName;
 
     // Sadece CREATE sırasında zorunludur; UPDATE sırasında mapper tarafından değiştirilmez (iş kuralı)
+    @NotBlank(message = "TC Kimlik No boş olamaz")
     @Size(min = 11, max = 11, message = "TC Kimlik No 11 karakter olmalıdır")
     private String tcNo;
 

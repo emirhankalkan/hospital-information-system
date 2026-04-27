@@ -1,43 +1,31 @@
 package com.his.controller;
 
+import com.his.dto.ApiResponse;
 import com.his.dto.request.LoginRequest;
 import com.his.dto.request.RegisterRequest;
-import com.his.dto.response.MessageResponse;
+import com.his.dto.response.JwtResponse;
+import com.his.service.AuthService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * AuthController — Kimlik doğrulama (login/register) endpoint'leri.
- *
- * NOT: Bu controller şu an iskelet (placeholder) halindedir.
- * JWT + Spring Security kurulduktan sonra tam implementasyon buraya gelecek:
- *   - login  → JWT token üret, JwtResponse döndür
- *   - register → User oluştur, rol ata, başarı mesajı döndür
- */
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    // TODO: JWT Security kurulunca AuthService inject edilecek
+    private final AuthService authService;
 
-    /**
-     * POST /api/auth/login
-     * Kullanıcı girişi — username/password alır, JWT token döner.
-     */
     @PostMapping("/login")
-    public ResponseEntity<MessageResponse> login(@Valid @RequestBody LoginRequest request) {
-        // TODO: AuthService.login(request) → JwtResponse
-        return ResponseEntity.ok(new MessageResponse("Login endpoint — JWT Security kurulunca aktive edilecek."));
+    public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody LoginRequest request) {
+        JwtResponse jwtResponse = authService.login(request);
+        return ResponseEntity.ok(ApiResponse.success("Giriş başarılı", jwtResponse));
     }
 
-    /**
-     * POST /api/auth/register
-     * Yeni kullanıcı kaydı — ADMIN yetkisi gerektirir.
-     */
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> register(@Valid @RequestBody RegisterRequest request) {
-        // TODO: AuthService.register(request) → UserResponse
-        return ResponseEntity.ok(new MessageResponse("Register endpoint — JWT Security kurulunca aktive edilecek."));
+    public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
+        authService.register(request);
+        return ResponseEntity.ok(ApiResponse.success("Kullanıcı kaydı başarıyla oluşturuldu", null));
     }
 }

@@ -10,6 +10,8 @@ import com.his.mapper.DoctorMapper;
 import com.his.service.DepartmentService;
 import com.his.service.DoctorService;
 import com.his.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/doctors")
 @RequiredArgsConstructor
+@Tag(name = "Doktorlar", description = "Doktor profillerini listeleme ve yönetme işlemleri")
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -31,6 +34,7 @@ public class DoctorController {
 
     // PUBLIC — tüm roller görebilir
     @GetMapping
+    @Operation(summary = "Doktorları listele", description = "Aktif kullanıcı hesabına bağlı doktor profillerini listeler.")
     public ResponseEntity<ApiResponse<List<DoctorResponse>>> getAllDoctors() {
         List<DoctorResponse> doctors = doctorService.findAll()
                 .stream()
@@ -41,6 +45,7 @@ public class DoctorController {
 
     // PUBLIC
     @GetMapping("/{id}")
+    @Operation(summary = "Doktor detayı getir", description = "Verilen doktor ID değerine göre doktor bilgisini getirir.")
     public ResponseEntity<ApiResponse<DoctorResponse>> getDoctorById(@PathVariable Long id) {
         Doctor doctor = doctorService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Doktor bulundu", doctorMapper.toResponse(doctor)));
@@ -48,6 +53,7 @@ public class DoctorController {
 
     // PUBLIC
     @GetMapping("/department/{departmentId}")
+    @Operation(summary = "Departmana göre doktorları listele", description = "Belirli bir departmandaki doktorları listeler.")
     public ResponseEntity<ApiResponse<List<DoctorResponse>>> getDoctorsByDepartment(@PathVariable Long departmentId) {
         List<DoctorResponse> doctors = doctorService.findByDepartmentId(departmentId)
                 .stream()
@@ -58,6 +64,7 @@ public class DoctorController {
 
     // PUBLIC
     @GetMapping("/search")
+    @Operation(summary = "Doktor ara", description = "Doktor adı veya soyadına göre arama yapar.")
     public ResponseEntity<ApiResponse<List<DoctorResponse>>> searchDoctors(@RequestParam String keyword) {
         List<DoctorResponse> results = doctorService.searchDoctors(keyword)
                 .stream()
@@ -69,6 +76,7 @@ public class DoctorController {
     // ADMIN only
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Doktor profili oluştur", description = "Kullanıcı ve departman ilişkisiyle doktor profili oluşturur. Sadece ADMIN rolü kullanabilir.")
     public ResponseEntity<ApiResponse<DoctorResponse>> createDoctor(@Valid @RequestBody DoctorRequest request) {
         User user = userService.findById(request.getUserId());
         Department department = departmentService.findById(request.getDepartmentId());
@@ -80,6 +88,7 @@ public class DoctorController {
     // ADMIN only
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Doktor profili güncelle", description = "Doktor profil bilgilerini günceller. Sadece ADMIN rolü kullanabilir.")
     public ResponseEntity<ApiResponse<DoctorResponse>> updateDoctor(
             @PathVariable Long id,
             @Valid @RequestBody DoctorRequest request) {
@@ -93,6 +102,7 @@ public class DoctorController {
     // ADMIN only
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Doktor profili sil", description = "Doktor profilini siler. Sadece ADMIN rolü kullanabilir.")
     public ResponseEntity<ApiResponse<Void>> deleteDoctor(@PathVariable Long id) {
         doctorService.deleteDoctor(id);
         return ResponseEntity.ok(ApiResponse.success("Doktor silindi"));

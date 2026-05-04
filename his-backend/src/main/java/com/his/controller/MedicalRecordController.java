@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class MedicalRecordController {
 
     // DOCTOR, ADMIN
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @authorizationService.canAccessMedicalRecord(#id)")
     public ResponseEntity<ApiResponse<MedicalRecordResponse>> getMedicalRecordById(@PathVariable Long id) {
         MedicalRecord record = medicalRecordService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Tıbbi kayıt bulundu", medicalRecordMapper.toResponse(record)));
@@ -31,6 +33,7 @@ public class MedicalRecordController {
 
     // DOCTOR, ADMIN — randevuya ait kayıt
     @GetMapping("/appointment/{appointmentId}")
+    @PreAuthorize("hasRole('ADMIN') or @authorizationService.canAccessMedicalRecordByAppointment(#appointmentId)")
     public ResponseEntity<ApiResponse<MedicalRecordResponse>> getByAppointment(@PathVariable Long appointmentId) {
         MedicalRecord record = medicalRecordService.findByAppointmentId(appointmentId);
         return ResponseEntity.ok(ApiResponse.success("Randevuya ait tıbbi kayıt bulundu", medicalRecordMapper.toResponse(record)));
@@ -38,6 +41,7 @@ public class MedicalRecordController {
 
     // DOCTOR, ADMIN — hastanın tüm kayıtları
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasRole('ADMIN') or @authorizationService.isCurrentPatient(#patientId)")
     public ResponseEntity<ApiResponse<List<MedicalRecordResponse>>> getByPatient(@PathVariable Long patientId) {
         List<MedicalRecordResponse> records = medicalRecordService.findByPatientId(patientId)
                 .stream()
@@ -48,6 +52,7 @@ public class MedicalRecordController {
 
     // DOCTOR — doktorun yazdığı tüm kayıtlar
     @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasRole('ADMIN') or @authorizationService.isCurrentDoctor(#doctorId)")
     public ResponseEntity<ApiResponse<List<MedicalRecordResponse>>> getByDoctor(@PathVariable Long doctorId) {
         List<MedicalRecordResponse> records = medicalRecordService.findByDoctorId(doctorId)
                 .stream()
@@ -58,6 +63,7 @@ public class MedicalRecordController {
 
     // DOCTOR only — tıbbi kayıt oluştur
     @PostMapping
+    @PreAuthorize("@authorizationService.canCreateMedicalRecordForAppointment(#request.appointmentId)")
     public ResponseEntity<ApiResponse<MedicalRecordResponse>> createMedicalRecord(
             @Valid @RequestBody MedicalRecordRequest request) {
         MedicalRecord record = medicalRecordMapper.toEntity(request);
@@ -67,6 +73,7 @@ public class MedicalRecordController {
 
     // DOCTOR only — tıbbi kayıt güncelle
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.canUpdateMedicalRecord(#id)")
     public ResponseEntity<ApiResponse<MedicalRecordResponse>> updateMedicalRecord(
             @PathVariable Long id,
             @Valid @RequestBody MedicalRecordRequest request) {

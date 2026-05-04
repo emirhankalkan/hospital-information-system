@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,6 +68,7 @@ public class DoctorController {
 
     // ADMIN only
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponse>> createDoctor(@Valid @RequestBody DoctorRequest request) {
         User user = userService.findById(request.getUserId());
         Department department = departmentService.findById(request.getDepartmentId());
@@ -77,6 +79,7 @@ public class DoctorController {
 
     // ADMIN only
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponse>> updateDoctor(
             @PathVariable Long id,
             @Valid @RequestBody DoctorRequest request) {
@@ -89,6 +92,7 @@ public class DoctorController {
 
     // ADMIN only
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteDoctor(@PathVariable Long id) {
         doctorService.deleteDoctor(id);
         return ResponseEntity.ok(ApiResponse.success("Doktor silindi"));

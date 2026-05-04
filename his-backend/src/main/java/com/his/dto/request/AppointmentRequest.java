@@ -16,21 +16,18 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class AppointmentRequest {
 
-    @NotNull(message = "Hasta ID boş olamaz")
+    @NotNull(message = "Hasta ID bos olamaz")
     private Long patientId;
 
-    @NotNull(message = "Doktor ID boş olamaz")
+    @NotNull(message = "Doktor ID bos olamaz")
     private Long doctorId;
 
-    @NotNull(message = "Randevu tarihi boş olamaz")
-    @FutureOrPresent(message = "Randevu tarihi geçmiş olamaz")
+    @NotNull(message = "Randevu tarihi bos olamaz")
+    @FutureOrPresent(message = "Randevu tarihi gecmis olamaz")
     private LocalDate appointmentDate;
 
-    @NotNull(message = "Randevu saati boş olamaz")
+    @NotNull(message = "Randevu saati bos olamaz")
     private LocalTime appointmentTime;
 
     private String notes;
-
-    // Randevuyu oluşturan kullanıcı (Receptionist veya Patient)
-    private Long createdByUserId;
 }

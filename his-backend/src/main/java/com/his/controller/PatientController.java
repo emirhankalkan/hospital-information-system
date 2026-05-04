@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class PatientController {
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
     public ResponseEntity<ApiResponse<List<PatientResponse>>> getAllPatients() {
         List<PatientResponse> patients = patientService.findAllActive()
                 .stream()
@@ -37,6 +39,7 @@ public class PatientController {
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR') or @authorizationService.isCurrentPatient(#id)")
     public ResponseEntity<ApiResponse<PatientResponse>> getPatientById(@PathVariable Long id) {
         Patient patient = patientService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Hasta bulundu", patientMapper.toResponse(patient)));
@@ -44,6 +47,7 @@ public class PatientController {
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping("/tc/{tcNo}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
     public ResponseEntity<ApiResponse<PatientResponse>> getPatientByTcNo(@PathVariable String tcNo) {
         Patient patient = patientService.findByTcNo(tcNo);
         return ResponseEntity.ok(ApiResponse.success("Hasta bulundu", patientMapper.toResponse(patient)));
@@ -51,6 +55,7 @@ public class PatientController {
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
     public ResponseEntity<ApiResponse<List<PatientResponse>>> searchPatients(@RequestParam String keyword) {
         List<PatientResponse> results = patientService.searchPatients(keyword)
                 .stream()
@@ -61,6 +66,7 @@ public class PatientController {
 
     // ADMIN, RECEPTIONIST
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientResponse>> createPatient(@Valid @RequestBody PatientRequest request) {
         if (request.getUserId() == null) {
             throw new IllegalArgumentException("Hasta oluşturmak için userId zorunludur.");
@@ -73,6 +79,7 @@ public class PatientController {
 
     // ADMIN, RECEPTIONIST
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.isCurrentPatient(#id)")
     public ResponseEntity<ApiResponse<PatientResponse>> updatePatient(
             @PathVariable Long id,
             @Valid @RequestBody PatientRequest request) {
@@ -84,6 +91,7 @@ public class PatientController {
 
     // ADMIN only
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deletePatient(@PathVariable Long id) {
         patientService.deletePatient(id);
         return ResponseEntity.ok(ApiResponse.success("Hasta silindi"));

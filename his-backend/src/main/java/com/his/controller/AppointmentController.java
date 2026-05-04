@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ public class AppointmentController {
     // ADMIN, RECEPTIONIST, DOCTOR
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAllAppointments() {
         List<AppointmentResponse> appointments = appointmentService.findAll()
                 .stream()
@@ -47,6 +49,7 @@ public class AppointmentController {
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.canAccessAppointment(#id)")
     public ResponseEntity<ApiResponse<AppointmentResponse>> getAppointmentById(@PathVariable Long id) {
         Appointment appointment = appointmentService.findById(id);
         return ResponseEntity.ok(ApiResponse.success("Randevu bulundu", appointmentMapper.toResponse(appointment)));
@@ -54,6 +57,7 @@ public class AppointmentController {
 
     // ADMIN, RECEPTIONIST, DOCTOR — hastaya ait randevular
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.isCurrentPatient(#patientId)")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAppointmentsByPatient(@PathVariable Long patientId) {
         List<AppointmentResponse> appointments = appointmentService.findByPatientId(patientId)
                 .stream()
@@ -64,6 +68,7 @@ public class AppointmentController {
 
     // DOCTOR — kendi randevuları
     @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.isCurrentDoctor(#doctorId)")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAppointmentsByDoctor(@PathVariable Long doctorId) {
         List<AppointmentResponse> appointments = appointmentService.findByDoctorId(doctorId)
                 .stream()
@@ -74,6 +79,7 @@ public class AppointmentController {
 
     // DOCTOR — belirli güne ait randevular (günlük takvim)
     @GetMapping("/doctor/{doctorId}/date")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.isCurrentDoctor(#doctorId)")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getAppointmentsByDoctorAndDate(
             @PathVariable Long doctorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -86,6 +92,7 @@ public class AppointmentController {
 
     // RECEPTIONIST, PATIENT — randevu oluştur
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.isCurrentPatient(#request.patientId)")
     public ResponseEntity<ApiResponse<AppointmentResponse>> bookAppointment(@Valid @RequestBody AppointmentRequest request) {
         Patient patient = patientService.findById(request.getPatientId());
         Doctor doctor = doctorService.findById(request.getDoctorId());
@@ -101,6 +108,7 @@ public class AppointmentController {
     // RECEPTIONIST, DOCTOR — tarih/saat/notlar güncelle
     // TODO JWT sonrası: sadece randevuyu oluşturan veya ADMIN güncelleyebilmeli
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.canManageAppointment(#id)")
     public ResponseEntity<ApiResponse<AppointmentResponse>> updateAppointment(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentRequest request) {
@@ -113,6 +121,7 @@ public class AppointmentController {
     // DOCTOR, RECEPTIONIST — durum güncelle (SCHEDULED → COMPLETED / CANCELLED)
     // TODO JWT sonrası: @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST','ADMIN')")
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.canManageAppointment(#id)")
     public ResponseEntity<ApiResponse<AppointmentResponse>> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentStatusRequest request) {
@@ -123,6 +132,7 @@ public class AppointmentController {
     // RECEPTIONIST, PATIENT — randevu iptal et
     // TODO JWT sonrası: hasta sadece kendi randevusunu iptal edebilmeli
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST') or @authorizationService.canCancelAppointment(#id)")
     public ResponseEntity<ApiResponse<Void>> cancelAppointment(@PathVariable Long id) {
         appointmentService.cancelAppointment(id);
         return ResponseEntity.ok(ApiResponse.success("Randevu iptal edildi"));

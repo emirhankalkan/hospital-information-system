@@ -36,6 +36,9 @@ out/
 Thumbs.db
 
 # application secrets (override locally)
+*.env
+!*.env.example
+his-backend/.env
 his-backend/src/main/resources/application-local.properties
 his-backend/src/main/resources/application-prod.properties
 

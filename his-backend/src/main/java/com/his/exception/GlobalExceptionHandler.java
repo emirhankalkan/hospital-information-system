@@ -1,6 +1,7 @@
 package com.his.exception;
 
 import com.his.dto.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,15 @@ public class GlobalExceptionHandler {
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.add(error.getField() + ": " + error.getDefaultMessage());
         }
+        log.error("Doğrulama başarısız: {} - Path: {}", errors, request.getDescription(false));
+        return new ResponseEntity<>(ApiResponse.error("Doğrulama başarısız", errors), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        List<String> errors = ex.getConstraintViolations().stream()
+                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                .toList();
         log.error("Doğrulama başarısız: {} - Path: {}", errors, request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error("Doğrulama başarısız", errors), HttpStatus.BAD_REQUEST);
     }

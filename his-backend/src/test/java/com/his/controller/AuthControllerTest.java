@@ -138,7 +138,7 @@ class AuthControllerTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Kullanıcı kaydı başarıyla oluşturuldu"));
+                    .andExpect(jsonPath("$.message").value("Kullanıcı kaydı başarıyla oluşturuldu. Lütfen e-posta adresinizi doğrulayın."));
         }
 
         @Test

@@ -5,9 +5,12 @@ import com.his.entity.Role;
 import com.his.entity.User;
 import com.his.enums.RoleName;
 import com.his.exception.ResourceAlreadyExistsException;
+import com.his.repository.AccountTokenRepository;
+import com.his.repository.RefreshTokenRepository;
 import com.his.repository.RoleRepository;
 import com.his.repository.UserRepository;
 import com.his.security.JwtUtils;
+import com.his.service.EmailService;
 import com.his.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +51,15 @@ class AuthServiceImplTest {
 
     @Mock
     private JwtUtils jwtUtils;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private AccountTokenRepository accountTokenRepository;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -90,8 +102,10 @@ class AuthServiceImplTest {
                     user.getUsername().equals("testuser") &&
                     user.getEmail().equals("test@test.com") &&
                     user.getPassword().equals("encodedPassword") &&
-                    user.getRoles().contains(patientRole)
+                    user.getRoles().contains(patientRole) &&
+                    !user.getEmailVerified()
             ));
+            verify(emailService).sendEmailVerification(any(User.class), anyString());
         }
 
         @Test
@@ -113,6 +127,7 @@ class AuthServiceImplTest {
             verify(userRepository).save(argThat(user ->
                     user.getRoles().contains(adminRole)
             ));
+            verify(emailService).sendEmailVerification(any(User.class), anyString());
         }
 
         @Test

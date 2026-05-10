@@ -3,6 +3,7 @@ package com.his.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -16,11 +17,25 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
+    private static final String DEFAULT_DEV_SECRET = "aYp2s8vD4gK9fX1mP4jL7wN0zB3sC6xV9aT2hN5yR8E=";
+
     @Value("${his.jwt.secret}")
     private String jwtSecret;
 
     @Value("${his.jwt.expiration}")
     private long jwtExpirationMs;
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfiles;
+
+    @PostConstruct
+    void validateProductionSecret() {
+        for (String profile : activeProfiles.split(",")) {
+            if ("prod".equalsIgnoreCase(profile) && DEFAULT_DEV_SECRET.equals(jwtSecret)) {
+                throw new IllegalStateException("Production profile requires JWT_SECRET environment variable.");
+            }
+        }
+    }
 
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));

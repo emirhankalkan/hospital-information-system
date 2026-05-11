@@ -11,12 +11,12 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
-    
+
     private boolean success;
     private String message;
     private T data;
     private List<String> errors;
-    
+
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
 
@@ -35,7 +35,7 @@ public class ApiResponse<T> {
                 .data(data)
                 .build();
     }
-    
+
     public static <T> ApiResponse<T> success(String message) {
         return ApiResponse.<T>builder()
                 .success(true)

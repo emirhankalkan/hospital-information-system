@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -61,6 +62,12 @@ public class GlobalExceptionHandler {
                 .toList();
         log.error("Doğrulama başarısız: {} - Path: {}", errors, request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error("Doğrulama başarısız", errors), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMailException(MailException ex, WebRequest request) {
+        log.error("E-posta gönderilemedi: Path: {}", request.getDescription(false), ex);
+        return new ResponseEntity<>(ApiResponse.error("E-posta gönderilemedi. Lütfen daha sonra tekrar deneyiniz."), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

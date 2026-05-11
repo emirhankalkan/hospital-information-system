@@ -8,8 +8,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Test ortamında kullanılan minimal Security konfigürasyonu.
- * Tüm endpoint'lere izin verilir — JWT filtresi ve auth gereksinimleri devre dışı bırakılır.
- * Bu sayede Controller katmanı testleri güvenlik altyapısından bağımsız çalışabilir.
+ * Tüm endpoint'lere izin verilir. JWT filtresi ve auth gereksinimleri devre dışı bırakılır.
+ * Bu sayede controller katmanı testleri güvenlik altyapısından bağımsız çalışabilir.
  */
 @TestConfiguration
 public class TestSecurityConfig {

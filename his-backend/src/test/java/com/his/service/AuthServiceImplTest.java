@@ -6,6 +6,7 @@ import com.his.dto.request.RegisterRequest;
 import com.his.dto.request.ResetPasswordRequest;
 import com.his.dto.response.JwtResponse;
 import com.his.entity.AccountToken;
+import com.his.entity.Patient;
 import com.his.entity.RefreshToken;
 import com.his.entity.Role;
 import com.his.entity.User;
@@ -13,6 +14,7 @@ import com.his.enums.AccountTokenType;
 import com.his.enums.RoleName;
 import com.his.exception.ResourceAlreadyExistsException;
 import com.his.repository.AccountTokenRepository;
+import com.his.repository.PatientRepository;
 import com.his.repository.RefreshTokenRepository;
 import com.his.repository.RoleRepository;
 import com.his.repository.UserRepository;
@@ -74,6 +76,9 @@ class AuthServiceImplTest {
     private AccountTokenRepository accountTokenRepository;
 
     @Mock
+    private PatientRepository patientRepository;
+
+    @Mock
     private EmailService emailService;
 
     @InjectMocks
@@ -87,6 +92,7 @@ class AuthServiceImplTest {
     @BeforeEach
     void setUp() {
         validRegisterRequest = new RegisterRequest();
+        validRegisterRequest.setFullName("Test User");
         validRegisterRequest.setUsername("testuser");
         validRegisterRequest.setEmail("test@test.com");
         validRegisterRequest.setPassword("password123");
@@ -122,15 +128,24 @@ class AuthServiceImplTest {
             when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
             when(roleRepository.findByName(RoleName.PATIENT)).thenReturn(Optional.of(patientRole));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
 
             authService.register(validRegisterRequest);
 
             verify(userRepository).save(argThat(user ->
                     user.getUsername().equals("testuser") &&
+                    user.getFullName().equals("Test User") &&
                     user.getEmail().equals("test@test.com") &&
                     user.getPassword().equals("encodedPassword") &&
                     user.getRoles().contains(patientRole) &&
                     !user.getEmailVerified()
+            ));
+            verify(patientRepository).save(argThat(patient ->
+                    patient.getUser() != null &&
+                    patient.getUser().getEmail().equals("test@test.com") &&
+                    patient.getFirstName().equals("Test") &&
+                    patient.getLastName().equals("User") &&
+                    patient.getEmail().equals("test@test.com")
             ));
             verify(emailService).sendEmailVerification(any(User.class), anyString());
         }
@@ -148,6 +163,7 @@ class AuthServiceImplTest {
             when(passwordEncoder.encode(anyString())).thenReturn("encodedPwd");
             when(roleRepository.findByName(RoleName.ADMIN)).thenReturn(Optional.of(adminRole));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
 
             authService.register(validRegisterRequest);
 
@@ -160,6 +176,7 @@ class AuthServiceImplTest {
         @Test
         @DisplayName("Hata: Kullanıcı adı zaten varsa → ResourceAlreadyExistsException")
         void whenUsernameExists_thenThrowAlreadyExists() {
+            when(userRepository.existsByEmail("test@test.com")).thenReturn(false);
             when(userRepository.existsByUsername("testuser")).thenReturn(true);
 
             assertThatThrownBy(() -> authService.register(validRegisterRequest))
@@ -171,13 +188,13 @@ class AuthServiceImplTest {
         @Test
         @DisplayName("Hata: E-posta zaten varsa → ResourceAlreadyExistsException")
         void whenEmailExists_thenThrowAlreadyExists() {
-            when(userRepository.existsByUsername("testuser")).thenReturn(false);
             when(userRepository.existsByEmail("test@test.com")).thenReturn(true);
 
             assertThatThrownBy(() -> authService.register(validRegisterRequest))
                     .isInstanceOf(ResourceAlreadyExistsException.class)
                     .satisfies(ex -> assertThat(ex.getMessage().toLowerCase())
                             .contains("e-posta"));
+            verify(userRepository, never()).existsByUsername(anyString());
         }
 
         @Test
@@ -188,6 +205,7 @@ class AuthServiceImplTest {
             when(passwordEncoder.encode("password123")).thenReturn("$2a$10$HASHED");
             when(roleRepository.findByName(RoleName.PATIENT)).thenReturn(Optional.of(patientRole));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> inv.getArgument(0));
 
             authService.register(validRegisterRequest);
 

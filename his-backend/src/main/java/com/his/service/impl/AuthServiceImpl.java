@@ -8,6 +8,7 @@ import com.his.dto.request.ResendVerificationRequest;
 import com.his.dto.request.ResetPasswordRequest;
 import com.his.dto.response.JwtResponse;
 import com.his.entity.AccountToken;
+import com.his.entity.Patient;
 import com.his.entity.RefreshToken;
 import com.his.entity.Role;
 import com.his.entity.User;
@@ -16,6 +17,7 @@ import com.his.enums.RoleName;
 import com.his.exception.ResourceAlreadyExistsException;
 import com.his.exception.ResourceNotFoundException;
 import com.his.repository.AccountTokenRepository;
+import com.his.repository.PatientRepository;
 import com.his.repository.RefreshTokenRepository;
 import com.his.repository.RoleRepository;
 import com.his.repository.UserRepository;
@@ -60,6 +62,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AccountTokenRepository accountTokenRepository;
+    private final PatientRepository patientRepository;
     private final EmailService emailService;
 
     @Value("${his.refresh-token.expiration:604800000}")
@@ -93,16 +96,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new ResourceAlreadyExistsException("Hata: Kullanıcı adı zaten kullanımda!");
-        }
-
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResourceAlreadyExistsException("Hata: E-posta adresi zaten kullanımda!");
         }
 
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new ResourceAlreadyExistsException("Hata: Kullanıcı adı zaten kullanımda!");
+        }
+
         User user = new User();
         user.setUsername(request.getUsername());
+        user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setIsActive(true);
@@ -110,12 +114,25 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(resolveRoles(request.getRoles()));
 
         User savedUser = userRepository.save(user);
+        patientRepository.save(buildPatientProfile(savedUser));
+
         String verificationToken = createAccountToken(
                 savedUser,
                 AccountTokenType.EMAIL_VERIFICATION,
                 emailVerificationExpirationMs
         );
         emailService.sendEmailVerification(savedUser, verificationToken);
+    }
+
+    private Patient buildPatientProfile(User user) {
+        String[] nameParts = user.getFullName().trim().split("\\s+", 2);
+        Patient patient = new Patient();
+        patient.setUser(user);
+        patient.setFirstName(nameParts[0]);
+        patient.setLastName(nameParts.length > 1 ? nameParts[1] : "-");
+        patient.setEmail(user.getEmail());
+        patient.setIsDeleted(false);
+        return patient;
     }
 
     @Override

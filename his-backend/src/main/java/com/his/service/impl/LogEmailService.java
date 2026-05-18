@@ -12,17 +12,18 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(name = "his.mail.provider", havingValue = "log", matchIfMissing = true)
 public class LogEmailService implements EmailService {
 
-    @Value("${his.app.base-url:http://localhost:8080}")
-    private String baseUrl;
+    @Value("${his.app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     @Override
     public void sendEmailVerification(User user, String verificationToken) {
-        log.info("E-posta doğrulama bağlantısı [{}]: {}/api/auth/verify-email?token={}",
-                user.getEmail(), baseUrl, verificationToken);
+        log.info("E-posta dogrulama baglantisi [{}]: {}/verify-email?token={}",
+                user.getEmail(), frontendUrl, verificationToken);
     }
 
     @Override
     public void sendPasswordReset(User user, String resetToken) {
-        log.info("Şifre sıfırlama token [{}]: {}", user.getEmail(), resetToken);
+        log.info("Sifre sifirlama baglantisi [{}]: {}/reset-password?token={}",
+                user.getEmail(), frontendUrl, resetToken);
     }
 }

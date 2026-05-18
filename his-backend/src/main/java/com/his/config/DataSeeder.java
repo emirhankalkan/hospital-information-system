@@ -124,6 +124,7 @@ public class DataSeeder implements CommandLineRunner {
     private User createUser(String username, String email, Role role) {
         User user = new User();
         user.setUsername(username);
+        user.setFullName(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(SAMPLE_PASSWORD));
         user.setIsActive(true);

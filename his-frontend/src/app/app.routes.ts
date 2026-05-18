@@ -10,9 +10,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then(m => m.Login) 
   },
   {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/reset-password/reset-password').then((m) => m.ResetPassword),
+  },
+  {
+    path: 'verify-email',
+    loadComponent: () => import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
   },
   {
     path: 'admin',

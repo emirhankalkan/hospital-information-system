@@ -1,0 +1,34 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <i class="pi pi-envelope"></i>
+      </div>
+      <div class="auth-brand-label">Logo</div>
+      <h1>Hospital Information System</h1>
+      <div class="auth-section-title">E-posta Doğrulama</div>
+    </div>
+
+    <div class="auth-form">
+      @if (isLoading) {
+        <div class="auth-status">
+          <p-progress-spinner ariaLabel="E-posta doğrulanıyor" />
+          <p class="auth-help-text">E-posta adresiniz doğrulanıyor...</p>
+        </div>
+      }
+
+      @if (successMessage) {
+        <p-message severity="success" [text]="successMessage" styleClass="w-full" />
+        <p class="auth-help-text">Artık e-posta adresiniz ve şifreniz ile giriş yapabilirsiniz.</p>
+      }
+
+      @if (errorMessage) {
+        <p-message severity="error" [text]="errorMessage" styleClass="w-full" />
+      }
+
+      <div class="auth-footer">
+        <a routerLink="/login" class="auth-link auth-link-strong">Giriş sayfasına dön</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -16,28 +16,28 @@ public class SmtpEmailService implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${his.app.base-url:http://localhost:8080}")
-    private String baseUrl;
+    @Value("${his.app.frontend-url:http://localhost:4200}")
+    private String frontendUrl;
 
     @Value("${spring.mail.username}")
     private String fromAddress;
 
     @Override
     public void sendEmailVerification(User user, String verificationToken) {
-        String verificationUrl = baseUrl + "/api/auth/verify-email?token=" + verificationToken;
+        String verificationUrl = frontendUrl + "/verify-email?token=" + verificationToken;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromAddress);
         message.setTo(user.getEmail());
-        message.setSubject("HIS e-posta doğrulama");
+        message.setSubject("HIS e-posta dogrulama");
         message.setText("""
                 Merhaba %s,
 
-                Hospital Information System hesabınızı doğrulamak için aşağıdaki bağlantıyı açın:
+                Hospital Information System hesabinizi dogrulamak icin asagidaki baglantiyi acin:
 
                 %s
 
-                Bu bağlantı süreli olarak geçerlidir.
+                Bu baglanti sureli olarak gecerlidir.
                 """.formatted(user.getUsername(), verificationUrl));
 
         mailSender.send(message);
@@ -45,19 +45,21 @@ public class SmtpEmailService implements EmailService {
 
     @Override
     public void sendPasswordReset(User user, String resetToken) {
+        String resetUrl = frontendUrl + "/reset-password?token=" + resetToken;
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromAddress);
         message.setTo(user.getEmail());
-        message.setSubject("HIS şifre sıfırlama");
+        message.setSubject("HIS sifre sifirlama");
         message.setText("""
                 Merhaba %s,
 
-                Şifrenizi sıfırlamak için Swagger'da /api/auth/reset-password endpoint'ine aşağıdaki token ile istek gönderin:
+                Sifrenizi sifirlamak icin asagidaki baglantiyi acin:
 
                 %s
 
-                Bu token süreli olarak geçerlidir.
-                """.formatted(user.getUsername(), resetToken));
+                Bu baglanti sureli olarak gecerlidir.
+                """.formatted(user.getUsername(), resetUrl));
 
         mailSender.send(message);
     }

@@ -123,6 +123,7 @@ class AuthControllerTest {
 
         private RegisterRequest buildValidRequest() {
             RegisterRequest req = new RegisterRequest();
+            req.setFullName("Test User");
             req.setUsername("newuser");
             req.setPassword("secret123");
             req.setEmail("newuser@example.com");

@@ -1,0 +1,93 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <i class="pi pi-user-plus"></i>
+      </div>
+      <div class="auth-brand-label">Logo</div>
+      <h1>Hospital Information System</h1>
+      <div class="auth-section-title">Hasta Kaydı</div>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <p class="auth-help-text">
+        Sisteme hasta hesabı oluşturmak için bilgilerinizi giriniz. Kayıt sonrası e-posta doğrulaması gerekir.
+      </p>
+
+      @if (successMessage) {
+        <p-message severity="success" [text]="successMessage" styleClass="w-full" />
+      }
+
+      @if (errorMessage) {
+        <p-message severity="error" [text]="errorMessage" styleClass="w-full" />
+      }
+
+      <div class="auth-field">
+        <label for="fullName">Ad Soyad</label>
+        <input
+          pInputText
+          id="fullName"
+          formControlName="fullName"
+          type="text"
+          class="auth-input"
+          placeholder="Ad soyadınızı giriniz"
+        />
+      </div>
+
+      <div class="auth-field">
+        <label for="email">E-posta Adresi</label>
+        <input
+          pInputText
+          id="email"
+          formControlName="email"
+          type="email"
+          class="auth-input"
+          placeholder="E-posta adresinizi giriniz"
+        />
+      </div>
+
+      <div class="auth-field">
+        <label for="password">Şifre</label>
+        <p-password
+          id="password"
+          formControlName="password"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="auth-password"
+          inputStyleClass="auth-input"
+          placeholder="Şifrenizi giriniz"
+        />
+      </div>
+
+      <div class="auth-field">
+        <label for="confirmPassword">Şifre Tekrar</label>
+        <p-password
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="auth-password"
+          inputStyleClass="auth-input"
+          placeholder="Şifrenizi tekrar giriniz"
+        />
+      </div>
+
+      @if (passwordsDoNotMatch) {
+        <p-message severity="error" text="Şifreler eşleşmiyor." styleClass="w-full" />
+      }
+
+      <p-button
+        label="Kayıt Ol"
+        [loading]="isLoading"
+        type="submit"
+        [disabled]="registerForm.invalid || isLoading"
+        styleClass="auth-submit"
+      />
+
+      <div class="auth-footer">
+        Zaten hesabınız var mı?
+        <a routerLink="/login" class="auth-link auth-link-strong">Giriş Yap</a>
+      </div>
+    </form>
+  </div>
+</div>

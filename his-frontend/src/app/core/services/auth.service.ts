@@ -3,7 +3,15 @@ import { Injectable, computed, inject } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ApiResponse, AuthUser, ForgotPasswordRequest, JwtResponse, LoginRequest } from '../../models/auth.models';
+import {
+  ApiResponse,
+  AuthUser,
+  ForgotPasswordRequest,
+  JwtResponse,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+} from '../../models/auth.models';
 import { TokenStorageService } from './token-storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -23,8 +31,22 @@ export class AuthService {
     );
   }
 
+  register(request: RegisterRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.authUrl}/register`, request);
+  }
+
   forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.authUrl}/forgot-password`, request);
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.authUrl}/reset-password`, request);
+  }
+
+  verifyEmail(token: string): Observable<ApiResponse<void>> {
+    return this.http.get<ApiResponse<void>>(`${this.authUrl}/verify-email`, {
+      params: { token },
+    });
   }
 
   logout(): void {

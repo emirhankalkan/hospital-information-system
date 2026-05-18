@@ -33,7 +33,7 @@ public class Patient {
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    @Column(name = "tc_no", nullable = false, unique = true, length = 11)
+    @Column(name = "tc_no", unique = true, length = 11)
     private String tcNo;
 
     @Column(name = "birth_date")

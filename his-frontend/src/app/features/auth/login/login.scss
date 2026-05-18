@@ -1,0 +1,7 @@
+@use '../auth-page';
+
+:host ::ng-deep {
+  .auth-submit {
+    margin-top: 0.5rem;
+  }
+}

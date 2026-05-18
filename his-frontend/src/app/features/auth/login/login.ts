@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -22,6 +22,7 @@ import { AuthService } from '../../../core/services/auth.service';
     CheckboxModule,
     ButtonModule,
     MessageModule,
+    RouterLink,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -39,7 +40,7 @@ export class Login implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false],
     });
@@ -53,9 +54,9 @@ export class Login implements OnInit {
 
     this.isLoading = true;
     this.errorMessage = '';
-    const { username, password } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-    this.authService.login({ username, password }).subscribe({
+    this.authService.login({ email, password }).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigateByUrl(this.authService.homeUrl());

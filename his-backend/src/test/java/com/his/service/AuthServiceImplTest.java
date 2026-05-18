@@ -223,7 +223,7 @@ class AuthServiceImplTest {
             when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
             when(jwtUtils.generateJwtToken(authentication)).thenReturn("access-token");
 
-            assertThatThrownBy(() -> authService.login(new LoginRequest("unverified", "password123")))
+            assertThatThrownBy(() -> authService.login(new LoginRequest("unverified@test.com", "password123")))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("E-posta");
 
@@ -242,7 +242,7 @@ class AuthServiceImplTest {
             when(jwtUtils.generateJwtToken(authentication)).thenReturn("access-token");
             when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            JwtResponse response = authService.login(new LoginRequest("patient", "password123"));
+            JwtResponse response = authService.login(new LoginRequest("patient@test.com", "password123"));
 
             assertThat(response.getToken()).isEqualTo("access-token");
             assertThat(response.getRefreshToken()).isNotBlank();

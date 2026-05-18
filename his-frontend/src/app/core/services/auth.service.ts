@@ -3,7 +3,7 @@ import { Injectable, computed, inject } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ApiResponse, AuthUser, JwtResponse, LoginRequest } from '../../models/auth.models';
+import { ApiResponse, AuthUser, ForgotPasswordRequest, JwtResponse, LoginRequest } from '../../models/auth.models';
 import { TokenStorageService } from './token-storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +21,10 @@ export class AuthService {
       map((response) => response.data),
       tap((jwtResponse) => this.tokenStorage.saveSession(jwtResponse)),
     );
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.authUrl}/forgot-password`, request);
   }
 
   logout(): void {

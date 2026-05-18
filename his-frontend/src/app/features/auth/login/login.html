@@ -1,52 +1,52 @@
-<div class="min-h-screen flex items-center justify-center bg-slate-100 px-4 py-8">
-  <div class="w-full max-w-[430px] rounded-md border border-slate-200 bg-white shadow-xl">
-    <div class="border-b border-slate-200 px-8 pb-7 pt-8 text-center">
-      <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border border-cyan-100 bg-cyan-50 text-cyan-700">
-        <i class="pi pi-building-columns text-4xl"></i>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">
+        <i class="pi pi-building-columns"></i>
       </div>
-      <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Logo</div>
-      <h1 class="mt-2 text-2xl font-extrabold leading-tight text-slate-900">Hospital Information System</h1>
-      <div class="mt-4 text-lg font-bold text-cyan-800">Hasta Portalı</div>
+      <div class="auth-brand-label">Logo</div>
+      <h1>Hospital Information System</h1>
+      <div class="auth-section-title">Hasta Portalı</div>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 px-8 py-7">
-      <div class="text-center text-base font-bold text-slate-800">Giriş Yap</div>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="auth-form-title">Giriş Yap</div>
 
       @if (errorMessage) {
         <p-message severity="error" [text]="errorMessage" styleClass="w-full" />
       }
 
-      <div class="flex flex-col gap-2">
-        <label for="username" class="text-sm font-semibold text-slate-700">Ad Soyad / Kullanıcı Adı</label>
+      <div class="auth-field">
+        <label for="email">E-posta Adresi</label>
         <input
           pInputText
-          id="username"
-          formControlName="username"
-          type="text"
-          class="w-full !rounded-md !border-slate-300 !bg-white !p-3 !text-slate-900 placeholder:!text-slate-400 focus:!border-cyan-700 focus:!ring-1 focus:!ring-cyan-700"
-          placeholder="Kullanıcı adınızı giriniz"
+          id="email"
+          formControlName="email"
+          type="email"
+          class="auth-input"
+          placeholder="E-posta adresinizi giriniz"
         />
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label for="password" class="text-sm font-semibold text-slate-700">Şifre</label>
+      <div class="auth-field">
+        <label for="password">Şifre</label>
         <p-password
           id="password"
           formControlName="password"
           [toggleMask]="true"
           [feedback]="false"
-          styleClass="w-full"
-          inputStyleClass="w-full !rounded-md !border-slate-300 !bg-white !p-3 !text-slate-900 placeholder:!text-slate-400 focus:!border-cyan-700 focus:!ring-1 focus:!ring-cyan-700"
-          placeholder="Şifrenizi Giriniz"
+          styleClass="auth-password"
+          inputStyleClass="auth-input"
+          placeholder="Şifrenizi giriniz"
         />
       </div>
 
-      <div class="flex items-center justify-between gap-3 text-sm">
-        <div class="flex items-center gap-2">
+      <div class="auth-options">
+        <div class="remember-me">
           <p-checkbox formControlName="rememberMe" [binary]="true" inputId="remember" />
-          <label for="remember" class="text-slate-600 text-sm cursor-pointer hover:text-slate-900 transition-colors">Beni Hatırla</label>
+          <label for="remember">Beni Hatırla</label>
         </div>
-        <a href="#" class="font-semibold text-cyan-700 hover:text-cyan-900">Şifremi Unuttum</a>
+        <a routerLink="/forgot-password" class="auth-link">Şifremi Unuttum</a>
       </div>
 
       <p-button
@@ -54,15 +54,9 @@
         [loading]="isLoading"
         type="submit"
         [disabled]="loginForm.invalid"
-        styleClass="w-full !mt-2 !rounded-md !border-none !bg-cyan-700 hover:!bg-cyan-800 !py-3 !text-base !font-bold"
+        styleClass="auth-submit"
       />
 
-      <div class="flex flex-col items-center gap-3 border-t border-slate-200 pt-5 text-sm">
-        <div class="text-slate-500">
-          Hesabınız yok mu?
-          <a href="#" class="font-extrabold text-cyan-800 hover:text-cyan-950">KAYIT OL</a>
-        </div>
-      </div>
     </form>
   </div>
 </div>

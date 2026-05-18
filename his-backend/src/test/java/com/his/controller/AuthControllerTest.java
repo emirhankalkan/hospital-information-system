@@ -72,7 +72,7 @@ class AuthControllerTest {
         @Test
         @DisplayName("200 OK: Geçerli kimlik bilgileriyle JWT token döner")
         void whenValidCredentials_thenReturnJwt() throws Exception {
-            LoginRequest loginRequest = new LoginRequest("testuser", "password123");
+            LoginRequest loginRequest = new LoginRequest("test@test.com", "password123");
             JwtResponse jwtResponse = new JwtResponse(
                     "mocked.jwt.token", 1L, "testuser", "test@test.com", List.of("ROLE_PATIENT")
             );
@@ -104,7 +104,7 @@ class AuthControllerTest {
         @Test
         @DisplayName("400 Bad Request: Şifre boş → validation hatası")
         void whenPasswordIsBlank_thenReturn400() throws Exception {
-            LoginRequest invalidRequest = new LoginRequest("testuser", "");
+            LoginRequest invalidRequest = new LoginRequest("test@test.com", "");
 
             mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)

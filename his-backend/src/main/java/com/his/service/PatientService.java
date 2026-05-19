@@ -1,6 +1,7 @@
 package com.his.service;
 
 import com.his.entity.Patient;
+import com.his.entity.User;
 import java.util.List;
 
 public interface PatientService {
@@ -8,6 +9,8 @@ public interface PatientService {
     Patient findById(Long id);
 
     Patient findByUserId(Long userId);
+
+    Patient findOrCreateByUser(User user);
 
     Patient findByTcNo(String tcNo);
 

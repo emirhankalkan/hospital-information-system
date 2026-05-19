@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 import { AuthUser, JwtResponse } from '../../models/auth.models';
 
@@ -11,7 +11,15 @@ export class TokenStorageService {
   private readonly currentUserSignal = signal<AuthUser | null>(this.readUser());
 
   readonly currentUser = this.currentUserSignal.asReadonly();
-  readonly isAuthenticated = computed(() => Boolean(this.getAccessToken() && this.currentUserSignal()));
+
+  /**
+   * Token varlığını ve expire olup olmadığını kontrol eder.
+   * computed() zamanla otomatik tetiklenmez; guard ve interceptor
+   * çağırmalarında her seferinde değerlendirilir.
+   */
+  isAuthenticated(): boolean {
+    return Boolean(this.getAccessToken() && this.currentUserSignal() && !this.isTokenExpired());
+  }
 
   saveSession(response: JwtResponse): void {
     const user: AuthUser = {
@@ -42,6 +50,28 @@ export class TokenStorageService {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
+  /**
+   * JWT'nin `exp` claim'ini decode ederek sona erip ermediğini kontrol eder.
+   * Token yoksa veya parse edilemezse `true` (expire) döner.
+   */
+  isTokenExpired(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return true;
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      if (!payloadBase64) return true;
+
+      const payload = JSON.parse(atob(this.toBase64(payloadBase64))) as { exp?: number };
+      if (typeof payload.exp !== 'number') return true;
+
+      // exp saniye cinsinden, Date.now() milisaniye — 5 saniyelik buffer ekle
+      return payload.exp * 1000 < Date.now() + 5_000;
+    } catch {
+      return true;
+    }
+  }
+
   private readUser(): AuthUser | null {
     const rawUser = localStorage.getItem(USER_KEY);
     if (!rawUser) {
@@ -54,5 +84,10 @@ export class TokenStorageService {
       localStorage.removeItem(USER_KEY);
       return null;
     }
+  }
+
+  private toBase64(base64Url: string): string {
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
   }
 }

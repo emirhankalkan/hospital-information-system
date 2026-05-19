@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map, tap, throwError } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import {
@@ -9,7 +10,9 @@ import {
   ForgotPasswordRequest,
   JwtResponse,
   LoginRequest,
+  RefreshTokenRequest,
   RegisterRequest,
+  ResendVerificationRequest,
   ResetPasswordRequest,
 } from '../../models/auth.models';
 import { TokenStorageService } from './token-storage.service';
@@ -21,8 +24,11 @@ export class AuthService {
   private readonly authUrl = `${environment.apiUrl}/auth`;
 
   readonly currentUser = this.tokenStorage.currentUser;
-  readonly isAuthenticated = this.tokenStorage.isAuthenticated;
   readonly homeUrl = computed(() => this.resolveHomeUrl(this.currentUser()));
+
+  isAuthenticated(): boolean {
+    return this.tokenStorage.isAuthenticated();
+  }
 
   login(request: LoginRequest): Observable<JwtResponse> {
     return this.http.post<ApiResponse<JwtResponse>>(`${this.authUrl}/login`, request).pipe(
@@ -33,6 +39,49 @@ export class AuthService {
 
   register(request: RegisterRequest): Observable<ApiResponse<void>> {
     return this.http.post<ApiResponse<void>>(`${this.authUrl}/register`, request);
+  }
+
+  /**
+   * Access token'ı refresh token kullanarak yeniler.
+   * Başarılıysa yeni session'ı storage'a kaydeder.
+   * Refresh token yoksa session'ı temizler ve hata fırlatır.
+   */
+  refreshAccessToken(): Observable<JwtResponse> {
+    const refreshToken = this.tokenStorage.getRefreshToken();
+
+    if (!refreshToken) {
+      this.tokenStorage.clearSession();
+      return throwError(() => new Error('Refresh token bulunamadı.'));
+    }
+
+    const request: RefreshTokenRequest = { refreshToken };
+
+    return this.http
+      .post<ApiResponse<JwtResponse>>(`${this.authUrl}/refresh-token`, request)
+      .pipe(
+        map((response) => response.data),
+        tap((jwtResponse) => this.tokenStorage.saveSession(jwtResponse)),
+      );
+  }
+
+  /**
+   * Çıkış yapar. Backend'e refresh token'ı revoke etmesi için istek gönderir,
+   * ardından local session'ı temizler. HTTP hatası olsa dahi local temizlik yapılır.
+   */
+  logout(): void {
+    const refreshToken = this.tokenStorage.getRefreshToken();
+
+    if (!refreshToken) {
+      this.tokenStorage.clearSession();
+      return;
+    }
+
+    const request: RefreshTokenRequest = { refreshToken };
+
+    this.http
+      .post<ApiResponse<void>>(`${this.authUrl}/logout`, request)
+      .pipe(finalize(() => this.tokenStorage.clearSession()))
+      .subscribe({ error: () => {} }); // hata olsa da local temizlik finalize'da yapılır
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<void>> {
@@ -49,8 +98,8 @@ export class AuthService {
     });
   }
 
-  logout(): void {
-    this.tokenStorage.clearSession();
+  resendVerification(request: ResendVerificationRequest): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.authUrl}/resend-verification`, request);
   }
 
   private resolveHomeUrl(user: AuthUser | null): string {

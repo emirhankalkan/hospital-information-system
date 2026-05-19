@@ -29,6 +29,14 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
 export interface AuthUser {
   id: number;
   username: string;

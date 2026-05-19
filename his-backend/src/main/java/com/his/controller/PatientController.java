@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,15 @@ public class PatientController {
     private final PatientService patientService;
     private final PatientMapper patientMapper;
     private final UserService userService;
+
+    @GetMapping("/me")
+    @Operation(summary = "Giriş yapan hastanın profilini getir", description = "PATIENT rolündeki kullanıcının kendi hasta profilini getirir.")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<ApiResponse<PatientResponse>> getCurrentPatient(Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName());
+        Patient patient = patientService.findOrCreateByUser(user);
+        return ResponseEntity.ok(ApiResponse.success("Hasta profili getirildi", patientMapper.toResponse(patient)));
+    }
 
     // ADMIN, RECEPTIONIST, DOCTOR
     @GetMapping

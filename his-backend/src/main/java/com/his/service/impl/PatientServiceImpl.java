@@ -1,6 +1,7 @@
 package com.his.service.impl;
 
 import com.his.entity.Patient;
+import com.his.entity.User;
 import com.his.exception.ResourceAlreadyExistsException;
 import com.his.exception.ResourceNotFoundException;
 import com.his.repository.PatientRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +44,14 @@ public class PatientServiceImpl implements PatientService {
             throw new ResourceNotFoundException("Hastaya bağlı kullanıcı hesabı pasif durumda");
         }
         return patient;
+    }
+
+    @Override
+    @Transactional
+    public Patient findOrCreateByUser(User user) {
+        return patientRepository.findByUserIdAndIsDeletedFalse(user.getId())
+                .filter(this::isPatientUserActive)
+                .orElseGet(() -> patientRepository.save(buildPatientFromUser(user)));
     }
 
     @Override
@@ -81,7 +91,7 @@ public class PatientServiceImpl implements PatientService {
             throw new ResourceAlreadyExistsException("Bu kullanıcı kimliğine (user id) bağlı bir hasta profili zaten mevcut: " + patient.getUser().getId());
         }
         
-        if (patientRepository.existsByTcNo(patient.getTcNo())) {
+        if (patient.getTcNo() != null && patientRepository.existsByTcNo(patient.getTcNo())) {
             throw new ResourceAlreadyExistsException("Bu T.C. Kimlik numarasına sahip bir hasta profili zaten mevcut: " + patient.getTcNo());
         }
         
@@ -94,7 +104,9 @@ public class PatientServiceImpl implements PatientService {
     public Patient updatePatient(Long id, Patient patientDetails) {
         Patient existingPatient = findById(id);
         
-        if (!existingPatient.getTcNo().equals(patientDetails.getTcNo()) && patientRepository.existsByTcNo(patientDetails.getTcNo())) {
+        if (patientDetails.getTcNo() != null
+                && !Objects.equals(existingPatient.getTcNo(), patientDetails.getTcNo())
+                && patientRepository.existsByTcNo(patientDetails.getTcNo())) {
              throw new ResourceAlreadyExistsException("Bu T.C. Kimlik numarası başka bir hasta tarafından kullanılıyor: " + patientDetails.getTcNo());
         }
         
@@ -124,5 +136,20 @@ public class PatientServiceImpl implements PatientService {
         
         patient.setIsDeleted(true); // Soft delete applied here
         patientRepository.save(patient);
+    }
+
+    private Patient buildPatientFromUser(User user) {
+        String fullName = user.getFullName() == null || user.getFullName().isBlank()
+                ? user.getUsername()
+                : user.getFullName().trim();
+        String[] nameParts = fullName.split("\\s+", 2);
+
+        Patient patient = new Patient();
+        patient.setUser(user);
+        patient.setFirstName(nameParts[0]);
+        patient.setLastName(nameParts.length > 1 ? nameParts[1] : "-");
+        patient.setEmail(user.getEmail());
+        patient.setIsDeleted(false);
+        return patient;
     }
 }

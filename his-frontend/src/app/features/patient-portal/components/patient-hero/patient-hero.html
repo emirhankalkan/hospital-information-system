@@ -1,0 +1,17 @@
+<header class="patient-hero">
+  <div class="hero-identity">
+    <p-avatar [label]="initials()" shape="circle" size="xlarge" styleClass="patient-avatar" />
+    <div>
+      <p class="eyebrow">Hasta Portalı</p>
+      <h1>Merhaba, {{ displayName() }}</h1>
+      <p class="hero-meta">
+        Hasta No: {{ patientId() || '-' }} · Son giriş: {{ lastLoginLabel() }}
+      </p>
+    </div>
+  </div>
+
+  <div class="hero-actions">
+    <p-tag value="PATIENT" severity="info" />
+    <p-tag [value]="profileStatusLabel()" [severity]="profileStatusSeverity()" />
+  </div>
+</header>

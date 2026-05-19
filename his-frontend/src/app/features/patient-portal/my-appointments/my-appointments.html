@@ -1,0 +1,33 @@
+<main class="patient-page">
+  <section class="patient-shell">
+    <app-patient-hero
+      [displayName]="displayName()"
+      [initials]="initials()"
+      [patientId]="profile()?.id || null"
+      [lastLoginLabel]="today"
+      [profileStatusLabel]="profileCompletionLabel()"
+      [profileStatusSeverity]="profileCompletionSeverity()"
+    />
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p-progress-spinner ariaLabel="Hasta profili yükleniyor" />
+      </div>
+    } @else if (errorMessage()) {
+      <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
+    } @else if (profile()) {
+      <app-patient-status-cards [cards]="statusCards" />
+
+      <section class="portal-grid">
+        <app-patient-empty-panel [config]="appointmentPanel" />
+        <app-patient-health-summary [items]="healthSummaryItems()" />
+      </section>
+
+      <section class="detail-grid">
+        @for (panel of detailPanels; track panel.title) {
+          <app-patient-empty-panel [config]="panel" />
+        }
+      </section>
+    }
+  </section>
+</main>

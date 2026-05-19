@@ -1,0 +1,17 @@
+<article class="panel health-panel">
+  <div class="panel-header compact">
+    <div>
+      <p class="section-kicker">Sağlık Özeti</p>
+      <h2>Profil Bilgileri</h2>
+    </div>
+  </div>
+
+  <dl class="health-list">
+    @for (item of items(); track item.label) {
+      <div>
+        <dt>{{ item.label }}</dt>
+        <dd>{{ item.value }}</dd>
+      </div>
+    }
+  </dl>
+</article>

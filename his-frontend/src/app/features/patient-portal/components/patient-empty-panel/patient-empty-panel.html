@@ -1,0 +1,28 @@
+<article class="panel">
+  <div class="panel-header" [class.compact]="!config().actionLabel">
+    <div>
+      <p class="section-kicker">{{ config().kicker }}</p>
+      <h2>{{ config().title }}</h2>
+    </div>
+
+    @if (config().actionLabel) {
+      <p-button
+        [label]="config().actionLabel"
+        [icon]="config().actionIcon"
+        styleClass="primary-action"
+      />
+    } @else if (config().tagLabel) {
+      <p-tag [value]="config().tagLabel" [severity]="config().tagSeverity || 'secondary'" />
+    }
+  </div>
+
+  <div [class]="config().large ? 'empty-state' : 'compact-empty'">
+    <span class="pi" [class]="config().icon"></span>
+    <div>
+      @if (config().heading) {
+        <h3>{{ config().heading }}</h3>
+      }
+      <p>{{ config().description }}</p>
+    </div>
+  </div>
+</article>

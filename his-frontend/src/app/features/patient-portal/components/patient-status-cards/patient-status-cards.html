@@ -1,0 +1,11 @@
+<section class="status-grid" aria-label="Hasta durum özeti">
+  @for (card of cards(); track card.label) {
+    <article class="status-card">
+      <span class="status-icon pi" [class]="card.icon"></span>
+      <div>
+        <p>{{ card.label }}</p>
+        <strong>{{ card.value }}</strong>
+      </div>
+    </article>
+  }
+</section>

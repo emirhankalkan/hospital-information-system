@@ -1,0 +1,70 @@
+<article class="panel appointments-panel">
+  <div class="panel-header">
+    <div>
+      <p class="section-kicker">Randevular</p>
+      <h2>Randevularım</h2>
+    </div>
+    <p-button label="Randevu Al" icon="pi pi-calendar-plus" styleClass="primary-action" />
+  </div>
+
+  @if (upcomingAppointments().length > 0) {
+    <div class="appointment-list">
+      @for (appointment of upcomingAppointments(); track appointment.id) {
+        <article class="appointment-item">
+          <div class="date-box">
+            <strong>{{ appointment.appointmentDate | date: 'dd' }}</strong>
+            <span>{{ appointment.appointmentDate | date: 'MMM' }}</span>
+          </div>
+
+          <div class="appointment-main">
+            <div class="appointment-title">
+              <h3>{{ getDoctorName(appointment) }}</h3>
+              <p-tag
+                [value]="getStatusLabel(appointment.status)"
+                [severity]="getStatusSeverity(appointment.status)"
+              />
+            </div>
+            <p>
+              {{ appointment.departmentName || appointment.doctorSpecialization || 'Bölüm bilgisi yok' }}
+            </p>
+            <span>
+              {{ appointment.appointmentDate | date: 'dd MMMM yyyy' }} ·
+              {{ appointment.appointmentTime.slice(0, 5) }}
+            </span>
+            <p-button
+              label="İptal Et"
+              icon="pi pi-times"
+              severity="danger"
+              styleClass="cancel-action"
+              [loading]="cancelingAppointmentId() === appointment.id"
+              [disabled]="cancelingAppointmentId() !== null"
+              (onClick)="onCancelAppointment(appointment.id)"
+            />
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <span class="pi pi-calendar"></span>
+      <h3>Yaklaşan randevunuz bulunmuyor</h3>
+      <p>Yeni bir randevu aldığınızda doktor, bölüm, tarih ve durum bilgileri burada listelenecek.</p>
+    </div>
+  }
+
+  @if (pastAppointments().length > 0) {
+    <div class="past-section">
+      <h3>Geçmiş randevular</h3>
+      @for (appointment of pastAppointments(); track appointment.id) {
+        <div class="past-item">
+          <span>{{ appointment.appointmentDate | date: 'dd MMM yyyy' }}</span>
+          <strong>{{ getDoctorName(appointment) }}</strong>
+          <p-tag
+            [value]="getStatusLabel(appointment.status)"
+            [severity]="getStatusSeverity(appointment.status)"
+          />
+        </div>
+      }
+    </div>
+  }
+</article>

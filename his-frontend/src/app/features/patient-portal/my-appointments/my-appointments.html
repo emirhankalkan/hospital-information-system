@@ -16,10 +16,22 @@
     } @else if (errorMessage()) {
       <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
     } @else if (profile()) {
-      <app-patient-status-cards [cards]="statusCards" />
+      <app-patient-status-cards [cards]="statusCards()" />
 
       <section class="portal-grid">
-        <app-patient-empty-panel [config]="appointmentPanel" />
+        <div>
+          @if (appointmentSuccessMessage()) {
+            <p-message severity="success" [text]="appointmentSuccessMessage()" styleClass="w-full mb-3" />
+          }
+          @if (appointmentErrorMessage()) {
+            <p-message severity="warn" [text]="appointmentErrorMessage()" styleClass="w-full mb-3" />
+          }
+          <app-patient-appointments-panel
+            [appointments]="appointments()"
+            [cancelingAppointmentId]="cancelingAppointmentId()"
+            (cancelAppointment)="cancelAppointment($event)"
+          />
+        </div>
         <app-patient-health-summary [items]="healthSummaryItems()" />
       </section>
 

@@ -3,10 +3,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { finalize, switchMap, tap } from 'rxjs';
 
+import { AppointmentService } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PatientService } from '../../../core/services/patient.service';
+import { Appointment } from '../../../models/appointment.models';
 import { PatientProfile } from '../../../models/patient.models';
+import { PatientAppointmentsPanelComponent } from '../components/patient-appointments-panel/patient-appointments-panel';
 import { PatientEmptyPanelComponent } from '../components/patient-empty-panel/patient-empty-panel';
 import { PatientHealthSummaryComponent } from '../components/patient-health-summary/patient-health-summary';
 import { PatientHeroComponent } from '../components/patient-hero/patient-hero';
@@ -25,6 +29,7 @@ import {
     CommonModule,
     MessageModule,
     ProgressSpinnerModule,
+    PatientAppointmentsPanelComponent,
     PatientEmptyPanelComponent,
     PatientHealthSummaryComponent,
     PatientHeroComponent,
@@ -34,49 +39,22 @@ import {
   styleUrl: './my-appointments.scss',
 })
 export class PatientAppointments implements OnInit {
+  private readonly appointmentService = inject(AppointmentService);
   private readonly patientService = inject(PatientService);
   readonly authService = inject(AuthService);
 
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
+  readonly appointmentErrorMessage = signal('');
+  readonly appointmentSuccessMessage = signal('');
+  readonly cancelingAppointmentId = signal<number | null>(null);
+  readonly appointments = signal<Appointment[]>([]);
   readonly profile = signal<PatientProfile | null>(null);
   readonly today = new Intl.DateTimeFormat('tr-TR', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
   }).format(new Date());
-  readonly statusCards: PatientStatusCard[] = [
-    {
-      icon: 'pi-calendar-clock',
-      label: 'Yaklaşan randevu',
-      value: 'Henüz yok',
-    },
-    {
-      icon: 'pi-file-check',
-      label: 'Bekleyen sonuç',
-      value: '0 sonuç',
-    },
-    {
-      icon: 'pi-clipboard',
-      label: 'Aktif reçete',
-      value: '0 reçete',
-    },
-    {
-      icon: 'pi-bell',
-      label: 'Bildirim',
-      value: 'Yeni bildirim yok',
-    },
-  ];
-  readonly appointmentPanel: PatientEmptyPanelConfig = {
-    kicker: 'Randevular',
-    title: 'Randevularım',
-    icon: 'pi-calendar',
-    heading: 'Yaklaşan randevunuz bulunmuyor',
-    description: 'Randevu alma akışı bağlandığında doktor, bölüm, tarih ve durum bilgileri burada listelenecek.',
-    actionLabel: 'Randevu Al',
-    actionIcon: 'pi pi-calendar-plus',
-    large: true,
-  };
   readonly detailPanels: PatientEmptyPanelConfig[] = [
     {
       kicker: 'Tahlil ve Sonuçlar',
@@ -122,6 +100,34 @@ export class PatientAppointments implements OnInit {
     const profile = this.profile();
     return Boolean(profile && (!profile.tcNo || !profile.phone || !profile.birthDate));
   });
+  readonly scheduledAppointments = computed(() =>
+    this.appointments().filter((appointment) => appointment.status === 'SCHEDULED'),
+  );
+  readonly statusCards = computed<PatientStatusCard[]>(() => [
+    {
+      icon: 'pi-calendar-clock',
+      label: 'Yaklaşan randevu',
+      value:
+        this.scheduledAppointments().length > 0
+          ? `${this.scheduledAppointments().length} randevu`
+          : 'Henüz yok',
+    },
+    {
+      icon: 'pi-file-check',
+      label: 'Bekleyen sonuç',
+      value: '0 sonuç',
+    },
+    {
+      icon: 'pi-clipboard',
+      label: 'Aktif reçete',
+      value: '0 reçete',
+    },
+    {
+      icon: 'pi-bell',
+      label: 'Bildirim',
+      value: 'Yeni bildirim yok',
+    },
+  ]);
   readonly profileCompletionLabel = computed(() =>
     this.isProfileIncomplete() ? 'Profil tamamlanmalı' : 'Profil tamamlandı',
   );
@@ -160,15 +166,62 @@ export class PatientAppointments implements OnInit {
   });
 
   ngOnInit(): void {
-    this.patientService.getMyProfile().subscribe({
-      next: (profile) => {
-        this.profile.set(profile);
-        this.isLoading.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage.set(error.error?.message ?? 'Hasta profili getirilemedi.');
-        this.isLoading.set(false);
-      },
-    });
+    this.loadPatientDashboard();
+  }
+
+  cancelAppointment(appointmentId: number): void {
+    this.appointmentErrorMessage.set('');
+    this.appointmentSuccessMessage.set('');
+    this.cancelingAppointmentId.set(appointmentId);
+
+    this.appointmentService
+      .cancelAppointment(appointmentId)
+      .pipe(
+        switchMap(() => {
+          const patientId = this.profile()?.id;
+          if (!patientId) {
+            throw new Error('Hasta profili bulunamadı.');
+          }
+
+          return this.appointmentService.getByPatientId(patientId);
+        }),
+        finalize(() => this.cancelingAppointmentId.set(null)),
+      )
+      .subscribe({
+        next: (appointments) => {
+          this.appointments.set(appointments);
+          this.appointmentSuccessMessage.set('Randevu iptal edildi.');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.appointmentErrorMessage.set(
+            error.error?.message ?? 'Randevu iptal edilemedi.',
+          );
+        },
+      });
+  }
+
+  private loadPatientDashboard(): void {
+    this.patientService
+      .getMyProfile()
+      .pipe(
+        tap((profile) => this.profile.set(profile)),
+        switchMap((profile) => this.appointmentService.getByPatientId(profile.id)),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe({
+        next: (appointments) => {
+          this.appointments.set(appointments);
+        },
+        error: (error: HttpErrorResponse) => {
+          if (this.profile()) {
+            this.appointmentErrorMessage.set(
+              error.error?.message ?? 'Randevu bilgileri getirilemedi.',
+            );
+            return;
+          }
+
+          this.errorMessage.set(error.error?.message ?? 'Hasta profili getirilemedi.');
+        },
+      });
   }
 }

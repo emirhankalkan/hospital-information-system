@@ -17,7 +17,7 @@
   </div>
 
   <div [class]="config().large ? 'empty-state' : 'compact-empty'">
-    <span class="pi" [class]="config().icon"></span>
+    <span class="pi {{ config().icon }}"></span>
     <div>
       @if (config().heading) {
         <h3>{{ config().heading }}</h3>

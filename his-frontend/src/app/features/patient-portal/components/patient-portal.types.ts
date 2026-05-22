@@ -12,7 +12,7 @@ export interface PatientHealthSummaryItem {
 }
 
 export interface PatientEmptyPanelConfig {
-  kicker: string;
+  kicker?: string;
   title: string;
   icon: string;
   description: string;

@@ -56,6 +56,11 @@
   font-weight: 800;
 }
 
+:host ::ng-deep .profile-action {
+  border-radius: 6px;
+  font-weight: 800;
+}
+
 @media (max-width: 640px) {
   .patient-hero {
     align-items: flex-start;

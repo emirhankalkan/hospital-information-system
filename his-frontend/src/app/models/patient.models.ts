@@ -19,6 +19,19 @@ export interface PatientProfile {
   updatedAt?: string;
 }
 
+export interface PatientProfileUpdateRequest {
+  firstName: string;
+  lastName: string;
+  tcNo?: string | null;
+  birthDate?: string | null;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  emergencyContact?: string | null;
+  bloodType?: string | null;
+}
+
 export interface PatientPanelUser {
   id: number;
   username: string;

@@ -13,5 +13,11 @@
   <div class="hero-actions">
     <p-tag value="PATIENT" severity="info" />
     <p-tag [value]="profileStatusLabel()" [severity]="profileStatusSeverity()" />
+    <p-button
+      label="Profilim"
+      icon="pi pi-user-edit"
+      styleClass="profile-action"
+      [routerLink]="profileRoute()"
+    />
   </div>
 </header>

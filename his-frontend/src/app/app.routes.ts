@@ -5,9 +5,11 @@ import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { 
-    path: 'login', 
-    loadComponent: () => import('./features/auth/login/login').then(m => m.Login) 
+
+  // --- Auth (herkese açık) ---
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
     path: 'register',
@@ -20,31 +22,34 @@ export const routes: Routes = [
   },
   {
     path: 'reset-password',
-    loadComponent: () => import('./features/auth/reset-password/reset-password').then((m) => m.ResetPassword),
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password').then((m) => m.ResetPassword),
   },
   {
     path: 'verify-email',
-    loadComponent: () => import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
+    loadComponent: () =>
+      import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
   },
+
+  // --- Admin ---
   {
     path: 'admin',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ROLE_ADMIN'] },
-    loadComponent: () => import('./features/admin/dashboard/dashboard').then((m) => m.AdminDashboard),
+    loadComponent: () =>
+      import('./features/admin/dashboard/dashboard').then((m) => m.AdminDashboard),
   },
+
+  // --- Doktor ---
   {
     path: 'doctor',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ROLE_DOCTOR'] },
-    loadComponent: () => import('./features/doctor/my-appointments/my-appointments').then((m) => m.DoctorAppointments),
-  },
-  {
-    path: 'patient',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['ROLE_PATIENT'] },
     loadComponent: () =>
-      import('./features/patient-portal/my-appointments/my-appointments').then((m) => m.PatientAppointments),
+      import('./features/doctor/my-appointments/my-appointments').then((m) => m.DoctorAppointments),
   },
+
+  // --- Resepsiyonist ---
   {
     path: 'receptionist',
     canActivate: [authGuard, roleGuard],
@@ -53,5 +58,31 @@ export const routes: Routes = [
       import('./features/receptionist/appointment-management/appointment-management').then(
         (m) => m.ReceptionistAppointmentManagement,
       ),
-  }
+  },
+
+  // --- Hasta Portalı (nested) ---
+  // canActivate  → /patient'a ilk girişte guard çalışır
+  // canActivateChild → /patient/profile, /patient/book gibi child geçişlerinde de çalışır
+  {
+    path: 'patient',
+    canActivate: [authGuard, roleGuard],
+    canActivateChild: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PATIENT'] },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/patient-portal/my-appointments/my-appointments').then(
+            (m) => m.PatientAppointments,
+          ),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/patient-portal/profile/patient-profile').then(
+            (m) => m.PatientProfilePage,
+          ),
+      },
+    ],
+  },
 ];

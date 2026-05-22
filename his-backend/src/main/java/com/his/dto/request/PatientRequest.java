@@ -1,7 +1,9 @@
 package com.his.dto.request;
 
 import com.his.enums.Gender;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,20 +17,19 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PatientRequest {
 
-    // Sadece CREATE sırasında zorunludur; UPDATE sırasında kullanılmaz ve göz ardı edilir
+    // Required only while creating a profile; ignored during update.
     private Long userId;
 
-    @NotBlank(message = "Ad boş olamaz")
+    @NotBlank(message = "Ad bos olamaz")
     @Size(max = 50, message = "Ad en fazla 50 karakter olabilir")
     private String firstName;
 
-    @NotBlank(message = "Soyad boş olamaz")
+    @NotBlank(message = "Soyad bos olamaz")
     @Size(max = 50, message = "Soyad en fazla 50 karakter olabilir")
     private String lastName;
 
-    // Sadece CREATE sırasında zorunludur; UPDATE sırasında mapper tarafından değiştirilmez (iş kuralı)
-    @NotBlank(message = "TC Kimlik No boş olamaz")
-    @Size(min = 11, max = 11, message = "TC Kimlik No 11 karakter olmalıdır")
+    // Not updated by PatientMapper. It may be null for demo/self-registered patients.
+    @Size(min = 11, max = 11, message = "TC Kimlik No 11 karakter olmalidir")
     private String tcNo;
 
     private LocalDate birthDate;
@@ -38,7 +39,7 @@ public class PatientRequest {
     @Size(max = 15)
     private String phone;
 
-    @Email(message = "Geçerli bir e-posta adresi giriniz")
+    @Email(message = "Gecerli bir e-posta adresi giriniz")
     @Size(max = 100)
     private String email;
 

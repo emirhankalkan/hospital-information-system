@@ -1,0 +1,213 @@
+.profile-page {
+  min-height: 100vh;
+  background: #f6f8fb;
+  padding: 1.5rem;
+}
+
+.profile-shell {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1.25rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+
+  h1 {
+    margin: 0.2rem 0;
+    color: #0f172a;
+    font-size: 1.85rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #526173;
+    font-weight: 600;
+  }
+}
+
+.eyebrow {
+  color: #036672;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.loading-state {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-card {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.form-section {
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1.2rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.section-heading {
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    color: #101828;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: #667085;
+    font-weight: 600;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+
+  span {
+    color: #344054;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+}
+
+.required {
+  color: #e53e3e;
+}
+
+.field-error {
+  color: #e53e3e;
+  font-size: 0.76rem;
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #101828;
+  font: inherit;
+  padding: 0.72rem 0.8rem;
+}
+
+input:disabled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* PrimeNG: p-select tam genişlik */
+:host ::ng-deep .full-width-select {
+  width: 100%;
+
+  .p-select {
+    width: 100%;
+  }
+}
+
+:host ::ng-deep .p-select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+
+  .p-select-label {
+    color: #101828;
+    font-size: 0.95rem;
+    padding: 0.72rem 0.8rem;
+  }
+
+  &.p-select-open,
+  &:not(.p-disabled):hover {
+    border-color: #036672;
+  }
+}
+
+/* PrimeNG: p-datepicker tam genişlik */
+:host ::ng-deep .full-width-picker {
+  width: 100%;
+
+  input.p-datepicker-input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #101828;
+    font: inherit;
+    padding: 0.72rem 0.8rem;
+
+    &:hover,
+    &:focus {
+      border-color: #036672;
+      outline: none;
+    }
+  }
+}
+
+:host ::ng-deep .primary-action,
+:host ::ng-deep .secondary-action {
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+:host ::ng-deep .primary-action {
+  border: 0;
+  background: #036672;
+}
+
+@media (max-width: 700px) {
+  .profile-page {
+    padding: 1rem;
+  }
+
+  .profile-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

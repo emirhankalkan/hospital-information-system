@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../models/auth.models';
-import { PatientProfile } from '../../models/patient.models';
+import { PatientProfile, PatientProfileUpdateRequest } from '../../models/patient.models';
 
 @Injectable({ providedIn: 'root' })
 export class PatientService {
@@ -14,6 +14,12 @@ export class PatientService {
   getMyProfile(): Observable<PatientProfile> {
     return this.http
       .get<ApiResponse<PatientProfile>>(`${this.patientsUrl}/me`)
+      .pipe(map((response) => response.data));
+  }
+
+  updateProfile(patientId: number, request: PatientProfileUpdateRequest): Observable<PatientProfile> {
+    return this.http
+      .put<ApiResponse<PatientProfile>>(`${this.patientsUrl}/${patientId}`, request)
       .pipe(map((response) => response.data));
   }
 }

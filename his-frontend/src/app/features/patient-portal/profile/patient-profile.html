@@ -1,0 +1,167 @@
+<main class="profile-page">
+  <section class="profile-shell">
+    <header class="profile-header">
+      <div>
+        <p class="eyebrow">Hasta Portalı</p>
+        <h1>Profilim</h1>
+        <p>Kişisel ve iletişim bilgilerinizi güncel tutun.</p>
+      </div>
+      <p-button label="Panele Dön" icon="pi pi-arrow-left" styleClass="secondary-action" [routerLink]="['/patient']" />
+    </header>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p-progress-spinner ariaLabel="Profil bilgileri yükleniyor" />
+      </div>
+    } @else {
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
+      }
+      @if (successMessage()) {
+        <p-message severity="success" [text]="successMessage()" styleClass="w-full" />
+      }
+
+      <form class="profile-card" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+
+        <!-- KİŞİSEL BİLGİLER -->
+        <section class="form-section">
+          <div class="section-heading">
+            <h2>Kişisel Bilgiler</h2>
+            <p>Ad soyad ve temel hasta bilgileri.</p>
+          </div>
+
+          <div class="form-grid">
+            <!-- Ad -->
+            <label>
+              <span>Ad <span class="required">*</span></span>
+              <input pInputText formControlName="firstName" placeholder="Adınızı girin" />
+              @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
+                <small class="field-error">
+                  @if (profileForm.get('firstName')?.errors?.['required']) { Ad alanı zorunludur. }
+                  @else if (profileForm.get('firstName')?.errors?.['maxlength']) { En fazla 50 karakter girilebilir. }
+                </small>
+              }
+            </label>
+
+            <!-- Soyad -->
+            <label>
+              <span>Soyad <span class="required">*</span></span>
+              <input pInputText formControlName="lastName" placeholder="Soyadınızı girin" />
+              @if (profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched) {
+                <small class="field-error">
+                  @if (profileForm.get('lastName')?.errors?.['required']) { Soyad alanı zorunludur. }
+                  @else if (profileForm.get('lastName')?.errors?.['maxlength']) { En fazla 50 karakter girilebilir. }
+                </small>
+              }
+            </label>
+
+            <!-- TC Kimlik No (salt okunur) -->
+            <label>
+              <span>TC Kimlik No</span>
+              <input pInputText formControlName="tcNo" />
+            </label>
+
+            <!-- Doğum Tarihi -->
+            <label>
+              <span>Doğum Tarihi</span>
+              <p-datepicker
+                formControlName="birthDate"
+                dateFormat="dd.mm.yy"
+                [showIcon]="true"
+                [maxDate]="today"
+                placeholder="Doğum tarihinizi seçin"
+                styleClass="full-width-picker"
+              />
+            </label>
+
+            <!-- Cinsiyet -->
+            <label>
+              <span>Cinsiyet</span>
+              <p-select
+                formControlName="gender"
+                [options]="genderOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Seçilmedi"
+                styleClass="full-width-select"
+              />
+            </label>
+
+            <!-- Kan Grubu -->
+            <label>
+              <span>Kan Grubu</span>
+              <p-select
+                formControlName="bloodType"
+                [options]="bloodTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Seçilmedi"
+                styleClass="full-width-select"
+              />
+            </label>
+          </div>
+        </section>
+
+        <!-- İLETİŞİM BİLGİLERİ -->
+        <section class="form-section">
+          <div class="section-heading">
+            <h2>İletişim Bilgileri</h2>
+            <p>Randevu ve bilgilendirme süreçleri için kullanılır.</p>
+          </div>
+
+          <div class="form-grid">
+            <!-- E-posta -->
+            <label>
+              <span>E-posta</span>
+              <input pInputText type="email" formControlName="email" placeholder="ornek@mail.com" />
+              @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+                <small class="field-error">Geçerli bir e-posta adresi girin.</small>
+              }
+            </label>
+
+            <!-- Telefon -->
+            <label>
+              <span>Telefon</span>
+              <input
+                pInputText
+                formControlName="phone"
+                inputmode="numeric"
+                maxlength="14"
+                placeholder="05XX XXX XX XX"
+                (input)="formatPhoneInput()"
+              />
+              @if (profileForm.get('phone')?.errors?.['pattern'] && profileForm.get('phone')?.touched) {
+                <small class="field-error">Telefon numarası 05XX XXX XX XX formatında olmalıdır.</small>
+              }
+            </label>
+
+            <!-- Acil Durum Kişisi -->
+            <label>
+              <span>Acil Durum Kişisi</span>
+              <input pInputText formControlName="emergencyContact" placeholder="Ad Soyad / Telefon" />
+              @if (profileForm.get('emergencyContact')?.errors?.['maxlength'] && profileForm.get('emergencyContact')?.touched) {
+                <small class="field-error">En fazla 100 karakter girilebilir.</small>
+              }
+            </label>
+
+            <!-- Adres -->
+            <label class="wide-field">
+              <span>Adres</span>
+              <textarea pTextarea rows="4" formControlName="address" placeholder="Açık adresinizi girin"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <footer class="form-actions">
+          <p-button
+            label="Kaydet"
+            icon="pi pi-save"
+            type="submit"
+            styleClass="primary-action"
+            [loading]="isSaving()"
+          />
+        </footer>
+      </form>
+    }
+  </section>
+</main>

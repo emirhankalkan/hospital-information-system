@@ -10,20 +10,20 @@
     </div>
 
     <div class="auth-form">
-      @if (isLoading) {
+      @if (isLoading()) {
         <div class="auth-status">
           <p-progress-spinner ariaLabel="E-posta doğrulanıyor" />
           <p class="auth-help-text">E-posta adresiniz doğrulanıyor...</p>
         </div>
       }
 
-      @if (successMessage) {
-        <p-message severity="success" [text]="successMessage" styleClass="w-full" />
+      @if (successMessage()) {
+        <p-message severity="success" [text]="successMessage()" styleClass="w-full" />
         <p class="auth-help-text">Artık e-posta adresiniz ve şifreniz ile giriş yapabilirsiniz.</p>
       }
 
-      @if (errorMessage) {
-        <p-message severity="error" [text]="errorMessage" styleClass="w-full" />
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
       }
 
       <div class="auth-footer">

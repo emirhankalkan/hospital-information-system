@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, map, tap, throwError } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -21,6 +22,7 @@ import { TokenStorageService } from './token-storage.service';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly router = inject(Router);
   private readonly authUrl = `${environment.apiUrl}/auth`;
 
   readonly currentUser = this.tokenStorage.currentUser;
@@ -73,6 +75,7 @@ export class AuthService {
 
     if (!refreshToken) {
       this.tokenStorage.clearSession();
+      this.router.navigate(['/login']);
       return;
     }
 
@@ -80,7 +83,12 @@ export class AuthService {
 
     this.http
       .post<ApiResponse<void>>(`${this.authUrl}/logout`, request)
-      .pipe(finalize(() => this.tokenStorage.clearSession()))
+      .pipe(
+        finalize(() => {
+          this.tokenStorage.clearSession();
+          this.router.navigate(['/login']);
+        }),
+      )
       .subscribe({ error: () => {} }); // hata olsa da local temizlik finalize'da yapılır
   }
 

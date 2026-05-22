@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { timeout } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -16,17 +16,15 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './verify-email.html',
   styleUrl: './verify-email.scss',
 })
-export class VerifyEmail implements OnInit {
-  isLoading = true;
-  successMessage = '';
-  errorMessage = '';
-  private fallbackTimer?: ReturnType<typeof setTimeout>;
+export class VerifyEmail implements OnInit, OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  readonly isLoading = signal(true);
+  readonly successMessage = signal('');
+  readonly errorMessage = signal('');
+
+  private fallbackTimer?: ReturnType<typeof setTimeout>;
 
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
@@ -37,35 +35,42 @@ export class VerifyEmail implements OnInit {
     }
 
     this.fallbackTimer = setTimeout(() => {
-      if (this.isLoading) {
-        this.showError('E-posta doğrulama isteği zaman aşımına uğradı. Lütfen bağlantıyı tekrar açın.');
+      if (this.isLoading()) {
+        this.showError(
+          'E-posta doğrulama isteği zaman aşımına uğradı. Lütfen bağlantıyı tekrar açın.',
+        );
       }
     }, 10000);
 
-    this.authService.verifyEmail(token).pipe(timeout(8000)).subscribe({
-      next: (response) => {
-        this.clearFallbackTimer();
-        this.isLoading = false;
-        this.successMessage = response.message;
-        this.errorMessage = '';
-        this.cdr.detectChanges();
-      },
-      error: (error: HttpErrorResponse | Error) => {
-        this.clearFallbackTimer();
-        const message =
-          error instanceof HttpErrorResponse
-            ? error.error?.message ?? 'E-posta doğrulanamadı. Bağlantı süresi dolmuş olabilir.'
-            : 'E-posta doğrulama isteği zaman aşımına uğradı. Lütfen bağlantıyı tekrar açın.';
-        this.showError(message);
-      },
-    });
+    this.authService
+      .verifyEmail(token)
+      .pipe(timeout(8000))
+      .subscribe({
+        next: (response) => {
+          this.clearFallbackTimer();
+          this.isLoading.set(false);
+          this.successMessage.set(response.message);
+          this.errorMessage.set('');
+        },
+        error: (error: HttpErrorResponse | Error) => {
+          this.clearFallbackTimer();
+          const message =
+            error instanceof HttpErrorResponse
+              ? (error.error?.message ?? 'E-posta doğrulanamadı. Bağlantı süresi dolmuş olabilir.')
+              : 'E-posta doğrulama isteği zaman aşımına uğradı. Lütfen bağlantıyı tekrar açın.';
+          this.showError(message);
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.clearFallbackTimer();
   }
 
   private showError(message: string): void {
-    this.isLoading = false;
-    this.successMessage = '';
-    this.errorMessage = message;
-    this.cdr.detectChanges();
+    this.isLoading.set(false);
+    this.successMessage.set('');
+    this.errorMessage.set(message);
   }
 
   private clearFallbackTimer(): void {

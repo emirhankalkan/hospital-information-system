@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -28,23 +28,20 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.scss',
 })
 export class Login implements OnInit {
-  loginForm!: FormGroup;
-  isLoading = false;
-  errorMessage = '';
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private authService: AuthService,
-  ) {}
+  readonly isLoading = signal(false);
+  readonly errorMessage = signal('');
 
-  ngOnInit(): void {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false],
-    });
-  }
+  readonly loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false],
+  });
+
+  ngOnInit(): void {}
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -52,18 +49,20 @@ export class Login implements OnInit {
       return;
     }
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     const { email, password } = this.loginForm.value;
 
-    this.authService.login({ email, password }).subscribe({
+    this.authService.login({ email: email!, password: password! }).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.router.navigateByUrl(this.authService.homeUrl());
       },
       error: (error: HttpErrorResponse) => {
-        this.isLoading = false;
-        this.errorMessage = error.error?.message ?? 'Giriş yapılamadı. Bilgilerinizi kontrol edin.';
+        this.isLoading.set(false);
+        this.errorMessage.set(
+          error.error?.message ?? 'Giriş yapılamadı. Bilgilerinizi kontrol edin.',
+        );
       },
     });
   }

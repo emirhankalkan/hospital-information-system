@@ -14,12 +14,12 @@
         Sisteme hasta hesabı oluşturmak için bilgilerinizi giriniz. Kayıt sonrası e-posta doğrulaması gerekir.
       </p>
 
-      @if (successMessage) {
-        <p-message severity="success" [text]="successMessage" styleClass="w-full" />
+      @if (successMessage()) {
+        <p-message severity="success" [text]="successMessage()" styleClass="w-full" />
       }
 
-      @if (errorMessage) {
-        <p-message severity="error" [text]="errorMessage" styleClass="w-full" />
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
       }
 
       <div class="auth-field">
@@ -78,9 +78,9 @@
 
       <p-button
         label="Kayıt Ol"
-        [loading]="isLoading"
+        [loading]="isLoading()"
         type="submit"
-        [disabled]="registerForm.invalid || isLoading"
+        [disabled]="registerForm.invalid || isLoading()"
         styleClass="auth-submit"
       />
 

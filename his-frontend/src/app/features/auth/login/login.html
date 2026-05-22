@@ -12,8 +12,8 @@
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="auth-form-title">Giriş Yap</div>
 
-      @if (errorMessage) {
-        <p-message severity="error" [text]="errorMessage" styleClass="w-full" />
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
       }
 
       <div class="auth-field">
@@ -51,7 +51,7 @@
 
       <p-button
         label="Giriş Yap"
-        [loading]="isLoading"
+        [loading]="isLoading()"
         type="submit"
         [disabled]="loginForm.invalid"
         styleClass="auth-submit"

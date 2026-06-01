@@ -41,7 +41,7 @@ import {
 export class PatientAppointments implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly patientService = inject(PatientService);
-  readonly authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
@@ -144,11 +144,11 @@ export class PatientAppointments implements OnInit {
       },
       {
         label: 'Doğum tarihi',
-        value: profile?.birthDate || 'Eklenmedi',
+        value: this.formatBirthDate(profile?.birthDate),
       },
       {
         label: 'Telefon',
-        value: profile?.phone || 'Eklenmedi',
+        value: this.formatPhone(profile?.phone),
       },
       {
         label: 'E-posta',
@@ -167,6 +167,10 @@ export class PatientAppointments implements OnInit {
 
   ngOnInit(): void {
     this.loadPatientDashboard();
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   cancelAppointment(appointmentId: number): void {
@@ -223,5 +227,35 @@ export class PatientAppointments implements OnInit {
           this.errorMessage.set(error.error?.message ?? 'Hasta profili getirilemedi.');
         },
       });
+  }
+
+  /** yyyy-MM-dd → 12 Haziran 1992 */
+  private formatBirthDate(dateStr: string | null | undefined): string {
+    if (!dateStr) return 'Eklenmedi';
+    try {
+      const date = new Date(dateStr);
+      return new Intl.DateTimeFormat('tr-TR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(date);
+    } catch {
+      return dateStr;
+    }
+  }
+
+  /** 5551234567 → 0555 123 45 67 */
+  private formatPhone(phone: string | null | undefined): string {
+    if (!phone) return 'Eklenmedi';
+    const digits = phone.replace(/\D/g, '');
+    // 10 haneli (başında 0 olmadan)
+    if (digits.length === 10) {
+      return `0${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8)}`;
+    }
+    // 11 haneli (0 ile başlıyor)
+    if (digits.length === 11 && digits.startsWith('0')) {
+      return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 9)} ${digits.slice(9)}`;
+    }
+    return phone;
   }
 }

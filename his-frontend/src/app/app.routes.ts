@@ -83,6 +83,13 @@ export const routes: Routes = [
             (m) => m.PatientProfilePage,
           ),
       },
+      {
+        path: 'book',
+        loadComponent: () =>
+          import('./features/patient-portal/book-appointment/book-appointment').then(
+            (m) => m.BookAppointment,
+          ),
+      },
     ],
   },
 ];

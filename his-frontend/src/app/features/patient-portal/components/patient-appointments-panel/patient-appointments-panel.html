@@ -4,7 +4,7 @@
       <p class="section-kicker">Randevular</p>
       <h2>Randevularım</h2>
     </div>
-    <p-button label="Randevu Al" icon="pi pi-calendar-plus" styleClass="primary-action" />
+    <p-button label="Randevu Al" icon="pi pi-calendar-plus" styleClass="primary-action" routerLink="/patient/book" />
   </div>
 
   @if (upcomingAppointments().length > 0) {
@@ -57,8 +57,14 @@
       <h3>Geçmiş randevular</h3>
       @for (appointment of pastAppointments(); track appointment.id) {
         <div class="past-item">
-          <span>{{ appointment.appointmentDate | date: 'dd MMM yyyy' }}</span>
-          <strong>{{ getDoctorName(appointment) }}</strong>
+          <div class="past-item__date">
+            <span>{{ appointment.appointmentDate | date: 'dd MMM yyyy' }}</span>
+            <small>{{ appointment.appointmentTime.slice(0, 5) }}</small>
+          </div>
+          <div class="past-item__info">
+            <strong>{{ getDoctorName(appointment) }}</strong>
+            <small>{{ appointment.departmentName || appointment.doctorSpecialization || '' }}</small>
+          </div>
           <p-tag
             [value]="getStatusLabel(appointment.status)"
             [severity]="getStatusSeverity(appointment.status)"

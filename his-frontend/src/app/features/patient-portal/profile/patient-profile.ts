@@ -11,6 +11,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 
+import { AuthService } from '../../../core/services/auth.service';
 import { PatientService } from '../../../core/services/patient.service';
 import { PatientProfile, PatientProfileUpdateRequest } from '../../../models/patient.models';
 
@@ -35,6 +36,7 @@ import { PatientProfile, PatientProfileUpdateRequest } from '../../../models/pat
 export class PatientProfilePage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly patientService = inject(PatientService);
+  private readonly authService = inject(AuthService);
 
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
@@ -73,6 +75,10 @@ export class PatientProfilePage implements OnInit {
     emergencyContact: ['', [Validators.maxLength(100)]],
     address: [''],
   });
+
+  logout(): void {
+    this.authService.logout();
+  }
 
   ngOnInit(): void {
     this.patientService.getMyProfile().subscribe({

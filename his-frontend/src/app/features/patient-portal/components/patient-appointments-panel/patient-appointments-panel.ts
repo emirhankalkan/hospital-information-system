@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
@@ -9,7 +10,7 @@ import { PatientTagSeverity } from '../patient-portal.types';
 @Component({
   selector: 'app-patient-appointments-panel',
   standalone: true,
-  imports: [ButtonModule, DatePipe, TagModule],
+  imports: [ButtonModule, DatePipe, RouterLink, TagModule],
   templateUrl: './patient-appointments-panel.html',
   styleUrl: './patient-appointments-panel.scss',
 })

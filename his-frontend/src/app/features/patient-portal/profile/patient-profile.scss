@@ -9,6 +9,17 @@
   margin: 0 auto;
 }
 
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .profile-header {
   display: flex;
   align-items: center;
@@ -19,7 +30,8 @@
   border-radius: 8px;
   background: #ffffff;
   padding: 1.25rem;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09);
+  animation: fadeSlideIn 0.35s ease both;
 
   h1 {
     margin: 0.2rem 0;
@@ -32,6 +44,24 @@
     margin: 0;
     color: #526173;
     font-weight: 600;
+  }
+}
+
+.profile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+:host ::ng-deep .logout-action {
+  border-radius: 6px;
+  font-weight: 700;
+
+  &:hover {
+    background: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+    color: #dc2626 !important;
   }
 }
 
@@ -61,7 +91,13 @@
   border-radius: 8px;
   background: #ffffff;
   padding: 1.2rem;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
+  }
 }
 
 .section-heading {

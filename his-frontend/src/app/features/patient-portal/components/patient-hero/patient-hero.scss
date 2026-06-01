@@ -8,13 +8,25 @@
   border-radius: 8px;
   background: #ffffff;
   padding: 1.25rem;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09);
+  animation: fadeSlideIn 0.35s ease both;
 
   h1 {
     margin: 0.2rem 0;
     color: #0f172a;
     font-size: 1.9rem;
     font-weight: 800;
+  }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -59,6 +71,17 @@
 :host ::ng-deep .profile-action {
   border-radius: 6px;
   font-weight: 800;
+}
+
+:host ::ng-deep .logout-action {
+  border-radius: 6px;
+  font-weight: 700;
+
+  &:hover {
+    background: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+    color: #dc2626 !important;
+  }
 }
 
 @media (max-width: 640px) {

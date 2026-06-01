@@ -4,7 +4,7 @@
       <div class="auth-logo">
         <i class="pi pi-building-columns"></i>
       </div>
-      <div class="auth-brand-label">Logo</div>
+      <div class="auth-brand-label">H·I·S</div>
       <h1>Hospital Information System</h1>
       <div class="auth-section-title">Hasta Portalı</div>
     </div>
@@ -62,5 +62,29 @@
         <a routerLink="/register" class="auth-link auth-link-strong">Kayıt Ol</a>
       </div>
     </form>
+
+    <!-- Demo hesap kısayolları -->
+    <div class="demo-section">
+      <p-divider>
+        <span class="demo-divider-label">Hızlı Giriş</span>
+      </p-divider>
+      <p class="demo-hint">Aşağıdaki hesaplardan biriyle tek tıkta giriş yapın</p>
+      <div class="demo-grid">
+        @for (account of demoAccounts; track account.email) {
+          <button
+            type="button"
+            class="demo-btn demo-btn--{{ account.severity }}"
+            [disabled]="isLoading()"
+            (click)="quickLogin(account.email)"
+          >
+            <i [class]="account.icon + ' demo-btn__icon'"></i>
+            <span class="demo-btn__content">
+              <strong>{{ account.label }}</strong>
+              <small>{{ account.role }}</small>
+            </span>
+          </button>
+        }
+      </div>
+    </div>
   </div>
 </div>

@@ -43,6 +43,15 @@ export class AppointmentService {
       .pipe(map((response) => response.data));
   }
 
+  /** Hasta randevu alırken doktorun seçilen tarihteki dolu saatlerini getirir */
+  getBookedTimes(doctorId: number, date: string): Observable<string[]> {
+    return this.http
+      .get<ApiResponse<string[]>>(`${this.appointmentsUrl}/doctor/${doctorId}/booked-times`, {
+        params: { date },
+      })
+      .pipe(map((response) => response.data ?? []));
+  }
+
   /** Randevu durumunu günceller (COMPLETED, CANCELED vb.) */
   updateStatus(appointmentId: number, request: AppointmentStatusUpdateRequest): Observable<Appointment> {
     return this.http

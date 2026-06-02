@@ -24,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -37,6 +38,7 @@ public class AppointmentController {
     private final PatientService patientService;
     private final DoctorService doctorService;
     private final UserService userService;
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     // ADMIN, RECEPTIONIST
     @GetMapping
@@ -95,6 +97,22 @@ public class AppointmentController {
                 .map(appointmentMapper::toResponse)
                 .toList();
         return ResponseEntity.ok(ApiResponse.success("Doktorun günlük randevuları listelendi", appointments));
+    }
+
+    // Tüm giriş yapmış kullanıcılar - hasta randevu alırken sadece dolu saatleri görür
+    @GetMapping("/doctor/{doctorId}/booked-times")
+    @Operation(summary = "Doktorun dolu saatlerini listele", description = "Belirli doktor ve tarih için sadece dolu saatleri döner. Tarih formatı: YYYY-MM-DD.")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<String>>> getBookedTimesByDoctorAndDate(
+            @PathVariable Long doctorId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<String> bookedTimes = appointmentService.findByDoctorIdAndDate(doctorId, date)
+                .stream()
+                .filter(appointment -> appointment.getStatus() == com.his.enums.AppointmentStatus.SCHEDULED)
+                .map(appointment -> appointment.getAppointmentTime().format(TIME_FORMATTER))
+                .distinct()
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success("Dolu saatler listelendi", bookedTimes));
     }
 
     // ADMIN, RECEPTIONIST veya hastanın kendisi

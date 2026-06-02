@@ -1,0 +1,321 @@
+.book-page {
+  min-height: 100vh;
+  background: #f6f8fb;
+  padding: 1.5rem;
+}
+
+.book-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.book-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09);
+  animation: fadeSlideIn 0.35s ease both;
+
+  h1 {
+    margin: 0.2rem 0;
+    color: #0f172a;
+    font-size: 1.85rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #526173;
+    font-weight: 600;
+  }
+}
+
+.book-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  color: #036672;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.loading-state {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-row {
+  margin-bottom: 1rem;
+}
+
+.book-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 1rem;
+}
+
+.booking-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-section,
+.summary-panel {
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 1.2rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.summary-panel {
+  align-self: start;
+  display: grid;
+  gap: 1rem;
+}
+
+.section-heading {
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    color: #101828;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: #667085;
+    font-weight: 600;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+
+  span {
+    color: #344054;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+}
+
+.required {
+  color: #e53e3e;
+}
+
+.field-error {
+  color: #e53e3e;
+  font-size: 0.76rem;
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.field-hint {
+  color: #667085;
+  font-size: 0.76rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 130px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #101828;
+  font: inherit;
+  padding: 0.72rem 0.8rem;
+  resize: vertical;
+
+  &:hover,
+  &:focus {
+    border-color: #036672;
+    outline: none;
+  }
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.summary-list {
+  display: grid;
+  gap: 0.75rem;
+
+  div {
+    display: grid;
+    gap: 0.2rem;
+    border-bottom: 1px solid #e7edf5;
+    padding-bottom: 0.75rem;
+  }
+
+  span {
+    color: #667085;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  strong {
+    color: #101828;
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+}
+
+.time-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  span {
+    color: #101828;
+    font-weight: 700;
+  }
+
+  small {
+    border-radius: 999px;
+    background: #e9f8ef;
+    color: #11793a;
+    font-weight: 850;
+    padding: 0.3rem 0.5rem;
+  }
+
+  &.booked {
+    span {
+      color: #b42318;
+      text-decoration: line-through;
+    }
+
+    small {
+      background: #fee4e2;
+      color: #b42318;
+    }
+  }
+}
+
+:host ::ng-deep .logout-action {
+  border-radius: 6px;
+  font-weight: 700;
+
+  &:hover {
+    background: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+    color: #dc2626 !important;
+  }
+}
+
+:host ::ng-deep .primary-action,
+:host ::ng-deep .secondary-action {
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+:host ::ng-deep .primary-action {
+  border: 0;
+  background: #036672;
+}
+
+:host ::ng-deep .full-width-select,
+:host ::ng-deep .full-width-picker {
+  width: 100%;
+}
+
+:host ::ng-deep .p-select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+
+  .p-select-label {
+    color: #101828;
+    font-size: 0.95rem;
+    padding: 0.72rem 0.8rem;
+  }
+
+  &.p-select-open,
+  &:not(.p-disabled):hover {
+    border-color: #036672;
+  }
+}
+
+:host ::ng-deep .p-select-option.p-disabled {
+  opacity: 1;
+  background: #fff7f6;
+}
+
+:host ::ng-deep .full-width-picker input.p-datepicker-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #101828;
+  font: inherit;
+  padding: 0.72rem 0.8rem;
+
+  &:hover,
+  &:focus {
+    border-color: #036672;
+    outline: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .book-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .book-page {
+    padding: 1rem;
+  }
+
+  .book-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

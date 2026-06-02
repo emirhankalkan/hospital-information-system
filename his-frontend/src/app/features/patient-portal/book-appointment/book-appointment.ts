@@ -1,96 +1,311 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { finalize, forkJoin } from 'rxjs';
 
+import { AppointmentService } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { DepartmentService } from '../../../core/services/department.service';
+import { DoctorService } from '../../../core/services/doctor.service';
+import { PatientService } from '../../../core/services/patient.service';
+import { AppointmentRequest } from '../../../models/appointment.models';
+import { Department } from '../../../models/department.models';
+import { Doctor } from '../../../models/doctor.models';
+import { PatientProfile } from '../../../models/patient.models';
+
+interface SelectOption<T> {
+  label: string;
+  value: T;
+}
+
+interface TimeOption extends SelectOption<string> {
+  booked: boolean;
+  disabled: boolean;
+  statusLabel: string;
+}
 
 @Component({
   selector: 'app-book-appointment',
   standalone: true,
-  imports: [ButtonModule, RouterLink],
-  template: `
-    <main class="book-page">
-      <div class="book-shell">
-        <header class="book-header">
-          <div>
-            <p class="eyebrow">Hasta Portalı</p>
-            <h1>Randevu Al</h1>
-            <p>Bu özellik yakında eklenecek.</p>
-          </div>
-          <div class="book-header-actions">
-            <p-button label="Panele Dön" icon="pi pi-arrow-left" severity="secondary" routerLink="/patient" />
-            <p-button label="Çıkış Yap" icon="pi pi-power-off" severity="secondary" (onClick)="logout()" />
-          </div>
-        </header>
-
-        <div class="book-placeholder">
-          <span class="pi pi-calendar-clock"></span>
-          <h2>Randevu Alma Sistemi</h2>
-          <p>Bölüm seçimi, doktor listesi ve uygun saat seçimi bu sayfada yer alacak.</p>
-          <p-button label="Panele Dön" icon="pi pi-arrow-left" routerLink="/patient" />
-        </div>
-      </div>
-    </main>
-  `,
-  styles: [`
-    .book-page {
-      min-height: 100vh;
-      background: #f6f8fb;
-      padding: 1.5rem;
-    }
-    .book-shell {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .book-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid #dbe3ee;
-      border-radius: 8px;
-      background: #fff;
-      padding: 1.25rem;
-      box-shadow: 0 8px 24px rgba(15,23,42,0.09);
-      h1 { margin: 0.2rem 0; color: #0f172a; font-size: 1.85rem; font-weight: 800; }
-      p { margin: 0; color: #526173; font-weight: 600; }
-    }
-    .book-header-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .eyebrow {
-      color: #036672;
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      margin: 0;
-    }
-    .book-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      min-height: 320px;
-      border: 2px dashed #cbd5e1;
-      border-radius: 12px;
-      background: #fff;
-      text-align: center;
-      padding: 2rem;
-      .pi { font-size: 3rem; color: #036672; }
-      h2 { margin: 0; color: #101828; font-size: 1.3rem; font-weight: 800; }
-      p { margin: 0; color: #667085; max-width: 400px; line-height: 1.6; }
-    }
-  `],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    ButtonModule,
+    DatePickerModule,
+    InputTextModule,
+    MessageModule,
+    ProgressSpinnerModule,
+    SelectModule,
+    TextareaModule,
+  ],
+  templateUrl: './book-appointment.html',
+  styleUrl: './book-appointment.scss',
 })
-export class BookAppointment {
+export class BookAppointment implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
+  private readonly departmentService = inject(DepartmentService);
+  private readonly doctorService = inject(DoctorService);
+  private readonly patientService = inject(PatientService);
+
+  readonly isLoading = signal(true);
+  readonly isLoadingBookedTimes = signal(false);
+  readonly isSubmitting = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly profile = signal<PatientProfile | null>(null);
+  readonly departments = signal<Department[]>([]);
+  readonly doctors = signal<Doctor[]>([]);
+  readonly bookedTimes = signal<string[]>([]);
+  readonly selectedDepartmentId = signal<number | null>(null);
+  readonly selectedDoctorId = signal<number | null>(null);
+  readonly selectedAppointmentDate = signal<Date | null>(null);
+  readonly minDate = new Date();
+
+  private readonly workingHours = [
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+  ];
+
+  readonly departmentOptions = computed<SelectOption<number>[]>(() =>
+    this.departments().map((department) => ({
+      label: department.name,
+      value: department.id,
+    })),
+  );
+  readonly filteredDoctors = computed(() => {
+    const departmentId = this.selectedDepartmentId();
+    const doctors = this.doctors();
+
+    if (!departmentId) {
+      return doctors;
+    }
+
+    return doctors.filter((doctor) => doctor.departmentId === departmentId);
+  });
+  readonly doctorOptions = computed<SelectOption<number>[]>(() =>
+    this.filteredDoctors().map((doctor) => ({
+      label: this.getDoctorOptionLabel(doctor),
+      value: doctor.id,
+    })),
+  );
+  readonly selectedDoctor = computed(() =>
+    this.doctors().find((doctor) => doctor.id === this.selectedDoctorId()) ?? null,
+  );
+  readonly timeOptions = computed<TimeOption[]>(() => {
+    const bookedTimes = new Set(this.bookedTimes());
+
+    return this.workingHours.map((time) => {
+      const booked = bookedTimes.has(time);
+
+      return {
+        label: time,
+        value: time,
+        booked,
+        disabled: booked,
+        statusLabel: booked ? 'Dolu' : 'Müsait',
+      };
+    });
+  });
+  readonly canSelectTime = computed(() =>
+    Boolean(this.selectedDoctorId() && this.selectedAppointmentDate() && !this.isLoadingBookedTimes()),
+  );
+
+  readonly appointmentForm = this.fb.group({
+    departmentId: [null as number | null, Validators.required],
+    doctorId: [null as number | null, Validators.required],
+    appointmentDate: [null as Date | null, Validators.required],
+    appointmentTime: [null as string | null, Validators.required],
+    notes: ['', Validators.maxLength(500)],
+  });
+
+  ngOnInit(): void {
+    this.watchAppointmentDate();
+    this.loadPageData();
+  }
 
   logout(): void {
     this.authService.logout();
+  }
+
+  onDepartmentChange(departmentId: number | null): void {
+    this.selectedDepartmentId.set(departmentId);
+    this.selectedDoctorId.set(null);
+    this.bookedTimes.set([]);
+    this.appointmentForm.controls.doctorId.reset();
+    this.appointmentForm.controls.appointmentTime.reset();
+  }
+
+  onDoctorChange(doctorId: number | null): void {
+    this.selectedDoctorId.set(doctorId);
+    this.appointmentForm.controls.appointmentTime.reset();
+    this.loadBookedTimes();
+  }
+
+  bookAppointment(): void {
+    const profile = this.profile();
+
+    if (!profile || this.appointmentForm.invalid) {
+      this.appointmentForm.markAllAsTouched();
+      return;
+    }
+
+    const rawValue = this.appointmentForm.getRawValue();
+    const request: AppointmentRequest = {
+      patientId: profile.id,
+      doctorId: rawValue.doctorId as number,
+      appointmentDate: this.formatDate(rawValue.appointmentDate as Date),
+      appointmentTime: rawValue.appointmentTime as string,
+      notes: this.emptyToNull(rawValue.notes),
+    };
+
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.isSubmitting.set(true);
+
+    this.appointmentService
+      .create(request)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        next: () => {
+          this.successMessage.set('Randevunuz başarıyla oluşturuldu. Randevularım sayfasına yönlendiriliyorsunuz.');
+          setTimeout(() => void this.router.navigate(['/patient']), 900);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(error.error?.message ?? 'Randevu oluşturulamadı.');
+        },
+      });
+  }
+
+  getFieldError(controlName: keyof typeof this.appointmentForm.controls): string {
+    const control = this.appointmentForm.controls[controlName];
+
+    if (!control.touched || !control.invalid) {
+      return '';
+    }
+
+    if (control.errors?.['required']) {
+      return 'Bu alan zorunludur.';
+    }
+
+    if (control.errors?.['maxlength']) {
+      return 'En fazla 500 karakter girilebilir.';
+    }
+
+    return 'Alan değerini kontrol edin.';
+  }
+
+  private loadPageData(): void {
+    forkJoin({
+      profile: this.patientService.getMyProfile(),
+      departments: this.departmentService.getAll(),
+      doctors: this.doctorService.getAll(),
+    })
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: ({ profile, departments, doctors }) => {
+          this.profile.set(profile);
+          this.departments.set(departments);
+          this.doctors.set(doctors);
+          this.selectedDepartmentId.set(null);
+          this.selectedDoctorId.set(null);
+          this.selectedAppointmentDate.set(null);
+          this.bookedTimes.set([]);
+          this.appointmentForm.reset({
+            departmentId: null,
+            doctorId: null,
+            appointmentDate: null,
+            appointmentTime: null,
+            notes: '',
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(error.error?.message ?? 'Randevu sayfası verileri getirilemedi.');
+        },
+      });
+  }
+
+  private watchAppointmentDate(): void {
+    this.appointmentForm.controls.appointmentDate.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((date) => {
+        this.selectedAppointmentDate.set(date);
+        this.appointmentForm.controls.appointmentTime.reset();
+        this.loadBookedTimes();
+      });
+  }
+
+  private loadBookedTimes(): void {
+    const doctorId = this.selectedDoctorId();
+    const date = this.selectedAppointmentDate();
+
+    this.bookedTimes.set([]);
+
+    if (!doctorId || !date) {
+      this.isLoadingBookedTimes.set(false);
+      return;
+    }
+
+    this.isLoadingBookedTimes.set(true);
+    this.appointmentService
+      .getBookedTimes(doctorId, this.formatDate(date))
+      .pipe(finalize(() => this.isLoadingBookedTimes.set(false)))
+      .subscribe({
+        next: (bookedTimes) => {
+          this.bookedTimes.set(bookedTimes);
+
+          const selectedTime = this.appointmentForm.controls.appointmentTime.value;
+          if (selectedTime && bookedTimes.includes(selectedTime)) {
+            this.appointmentForm.controls.appointmentTime.reset();
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(error.error?.message ?? 'Dolu saatler getirilemedi.');
+        },
+      });
+  }
+
+  private getDoctorOptionLabel(doctor: Doctor): string {
+    const name = `Dr. ${doctor.firstName} ${doctor.lastName}`.trim();
+    const detail = doctor.specialization || doctor.departmentName;
+
+    return detail ? `${name} - ${detail}` : name;
+  }
+
+  private formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private emptyToNull(value: string | null | undefined): string | null {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : null;
   }
 }

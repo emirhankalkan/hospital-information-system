@@ -1,0 +1,184 @@
+<main class="book-page">
+  <section class="book-shell">
+    <header class="book-header">
+      <div>
+        <p class="eyebrow">Hasta Portalı</p>
+        <h1>Randevu Al</h1>
+        <p>Bölüm, doktor, tarih ve saat seçerek yeni randevunuzu oluşturun.</p>
+      </div>
+      <div class="book-header-actions">
+        <p-button label="Panele Dön" icon="pi pi-arrow-left" styleClass="secondary-action" [routerLink]="['/patient']" />
+        <p-button label="Çıkış Yap" icon="pi pi-sign-out" severity="secondary" styleClass="logout-action" (onClick)="logout()" />
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p-progress-spinner ariaLabel="Randevu sayfası yükleniyor" />
+      </div>
+    } @else {
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()" styleClass="w-full message-row" />
+      }
+      @if (successMessage()) {
+        <p-message severity="success" [text]="successMessage()" styleClass="w-full message-row" />
+      }
+
+      <div class="book-layout">
+        <form class="booking-panel" [formGroup]="appointmentForm" (ngSubmit)="bookAppointment()">
+          <section class="form-section">
+            <div class="section-heading">
+              <h2>Randevu Detayları</h2>
+              <p>Seçimleriniz backend randevu kurallarına göre doğrulanır.</p>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                <span>Bölüm <span class="required">*</span></span>
+                <p-select
+                  formControlName="departmentId"
+                  [options]="departmentOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Bölüm seçin"
+                  styleClass="full-width-select"
+                  [filter]="true"
+                  filterPlaceholder="Bölüm ara"
+                  (onChange)="onDepartmentChange($event.value)"
+                />
+                @if (getFieldError('departmentId')) {
+                  <small class="field-error">{{ getFieldError('departmentId') }}</small>
+                }
+              </label>
+
+              <label>
+                <span>Doktor <span class="required">*</span></span>
+                <p-select
+                  formControlName="doctorId"
+                  [options]="doctorOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Doktor seçin"
+                  styleClass="full-width-select"
+                  [filter]="true"
+                  filterPlaceholder="Doktor ara"
+                  [disabled]="doctorOptions().length === 0"
+                  (onChange)="onDoctorChange($event.value)"
+                />
+                @if (getFieldError('doctorId')) {
+                  <small class="field-error">{{ getFieldError('doctorId') }}</small>
+                }
+              </label>
+
+              <label>
+                <span>Tarih <span class="required">*</span></span>
+                <p-datepicker
+                  formControlName="appointmentDate"
+                  dateFormat="dd.mm.yy"
+                  [showIcon]="true"
+                  [minDate]="minDate"
+                  placeholder="Randevu tarihi"
+                  styleClass="full-width-picker"
+                />
+                @if (getFieldError('appointmentDate')) {
+                  <small class="field-error">{{ getFieldError('appointmentDate') }}</small>
+                }
+              </label>
+
+              <label>
+                <span>Saat <span class="required">*</span></span>
+                <p-select
+                  formControlName="appointmentTime"
+                  [options]="timeOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  optionDisabled="disabled"
+                  placeholder="Saat seçin"
+                  styleClass="full-width-select"
+                  [disabled]="!canSelectTime()"
+                  [loading]="isLoadingBookedTimes()"
+                >
+                  <ng-template #selectedItem let-option>
+                    <div class="time-option selected">
+                      <span>{{ option.label }}</span>
+                      <small [class.booked]="option.booked">{{ option.statusLabel }}</small>
+                    </div>
+                  </ng-template>
+                  <ng-template #item let-option>
+                    <div class="time-option" [class.booked]="option.booked">
+                      <span>{{ option.label }}</span>
+                      <small>{{ option.statusLabel }}</small>
+                    </div>
+                  </ng-template>
+                </p-select>
+                @if (!selectedDoctorId() || !selectedAppointmentDate()) {
+                  <small class="field-hint">Saatleri görmek için doktor ve tarih seçin.</small>
+                } @else if (bookedTimes().length > 0) {
+                  <small class="field-hint">Dolu saatler kırmızı görünür ve seçilemez.</small>
+                }
+                @if (getFieldError('appointmentTime')) {
+                  <small class="field-error">{{ getFieldError('appointmentTime') }}</small>
+                }
+              </label>
+
+              <label class="wide-field">
+                <span>Not</span>
+                <textarea
+                  pTextarea
+                  rows="5"
+                  formControlName="notes"
+                  placeholder="Randevu sebebi, şikayet veya doktora iletmek istediğiniz kısa not"
+                ></textarea>
+                @if (getFieldError('notes')) {
+                  <small class="field-error">{{ getFieldError('notes') }}</small>
+                }
+              </label>
+            </div>
+          </section>
+
+          <footer class="form-actions">
+            <p-button
+              label="Randevuyu Oluştur"
+              icon="pi pi-calendar-plus"
+              type="submit"
+              styleClass="primary-action"
+              [loading]="isSubmitting()"
+            />
+          </footer>
+        </form>
+
+        <aside class="summary-panel">
+          <div class="section-heading">
+            <h2>Özet</h2>
+            <p>Seçtiğiniz randevu bilgileri.</p>
+          </div>
+
+          <div class="summary-list">
+            <div>
+              <span>Hasta</span>
+              <strong>{{ profile()?.firstName }} {{ profile()?.lastName }}</strong>
+            </div>
+            <div>
+              <span>Bölüm</span>
+              <strong>{{ selectedDoctor()?.departmentName || 'Seçilmedi' }}</strong>
+            </div>
+            <div>
+              <span>Doktor</span>
+              <strong>
+                @if (selectedDoctor()) {
+                  Dr. {{ selectedDoctor()?.firstName }} {{ selectedDoctor()?.lastName }}
+                } @else {
+                  Seçilmedi
+                }
+              </strong>
+            </div>
+            <div>
+              <span>Uzmanlık</span>
+              <strong>{{ selectedDoctor()?.specialization || 'Seçilmedi' }}</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    }
+  </section>
+</main>

@@ -169,10 +169,6 @@ export class PatientAppointments implements OnInit {
     this.loadPatientDashboard();
   }
 
-  logout(): void {
-    this.authService.logout();
-  }
-
   cancelAppointment(appointmentId: number): void {
     this.appointmentErrorMessage.set('');
     this.appointmentSuccessMessage.set('');

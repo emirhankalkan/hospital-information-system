@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { PatientLayout } from './features/patient-portal/patient-layout/patient-layout';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -63,8 +64,10 @@ export const routes: Routes = [
   // --- Hasta Portalı (nested) ---
   // canActivate  → /patient'a ilk girişte guard çalışır
   // canActivateChild → /patient/profile, /patient/book gibi child geçişlerinde de çalışır
+  // PatientLayout → sidebar + <router-outlet> shell bileşeni
   {
     path: 'patient',
+    component: PatientLayout,
     canActivate: [authGuard, roleGuard],
     canActivateChild: [authGuard, roleGuard],
     data: { roles: ['ROLE_PATIENT'] },

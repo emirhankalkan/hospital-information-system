@@ -13,18 +13,5 @@
   <div class="hero-actions">
     <p-tag value="PATIENT" severity="info" />
     <p-tag [value]="profileStatusLabel()" [severity]="profileStatusSeverity()" />
-    <p-button
-      label="Profilim"
-      icon="pi pi-user-edit"
-      styleClass="profile-action"
-      [routerLink]="profileRoute()"
-    />
-    <p-button
-      label="Çıkış Yap"
-      icon="pi pi-power-off"
-      severity="secondary"
-      styleClass="logout-action"
-      (onClick)="onLogout()"
-    />
   </div>
 </header>

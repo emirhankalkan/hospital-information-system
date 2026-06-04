@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,7 +14,6 @@ import { TextareaModule } from 'primeng/textarea';
 import { finalize, forkJoin } from 'rxjs';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { DepartmentService } from '../../../core/services/department.service';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { PatientService } from '../../../core/services/patient.service';
@@ -39,8 +38,8 @@ interface TimeOption extends SelectOption<string> {
   standalone: true,
   imports: [
     CommonModule,
+    DatePipe,
     ReactiveFormsModule,
-    RouterLink,
     ButtonModule,
     DatePickerModule,
     InputTextModule,
@@ -57,7 +56,6 @@ export class BookAppointment implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly appointmentService = inject(AppointmentService);
-  private readonly authService = inject(AuthService);
   private readonly departmentService = inject(DepartmentService);
   private readonly doctorService = inject(DoctorService);
   private readonly patientService = inject(PatientService);
@@ -147,10 +145,6 @@ export class BookAppointment implements OnInit {
   ngOnInit(): void {
     this.watchAppointmentDate();
     this.loadPageData();
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 
   onDepartmentChange(departmentId: number | null): void {

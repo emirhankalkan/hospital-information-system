@@ -6,10 +6,6 @@
         <h1>Profilim</h1>
         <p>Kişisel ve iletişim bilgilerinizi güncel tutun.</p>
       </div>
-      <div class="profile-header-actions">
-        <p-button label="Panele Dön" icon="pi pi-arrow-left" styleClass="secondary-action" [routerLink]="['/patient']" />
-        <p-button label="Çıkış Yap" icon="pi pi-sign-out" severity="secondary" styleClass="logout-action" (onClick)="logout()" />
-      </div>
     </header>
 
     @if (isLoading()) {

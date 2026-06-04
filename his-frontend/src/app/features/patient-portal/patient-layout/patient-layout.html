@@ -1,0 +1,103 @@
+<div
+  class="layout"
+  [class.collapsed]="isCollapsed()"
+  [class.mobile-open]="isMobileSidebarOpen()"
+>
+  <div class="overlay" (click)="closeMobileSidebar()"></div>
+
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <i class="pi pi-building-columns"></i>
+      </div>
+      <span class="logo-text">HIS</span>
+    </div>
+
+    <!-- Kullanıcı -->
+    <div
+      class="sidebar-user"
+      [pTooltip]="isCollapsed() ? (safeFirstName() || 'Profili Güncelle') : ''"
+      tooltipPosition="right"
+    >
+      <p-avatar [label]="initials()" shape="circle" styleClass="s-avatar" />
+      <div class="user-text">
+        @if (safeFirstName()) {
+          <span class="user-name">{{ safeFirstName() }}</span>
+        } @else if (firstName()) {
+          <a routerLink="/patient/profile" class="user-name-warn">Profilimi Güncelle →</a>
+        } @else {
+          <span class="user-name user-name--loading">...</span>
+        }
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+          class="nav-link"
+          [pTooltip]="isCollapsed() ? item.label : ''"
+          tooltipPosition="right"
+          (click)="closeMobileSidebar()"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+
+      <div class="nav-sep"></div>
+
+      @for (item of comingSoonItems; track item.label) {
+        <div
+          class="nav-link nav-link--dim"
+          [pTooltip]="isCollapsed() ? item.label : ''"
+          tooltipPosition="right"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </div>
+      }
+    </nav>
+
+    <!-- Alt -->
+    <div class="sidebar-bottom">
+      <button
+        class="collapse-toggle"
+        type="button"
+        [pTooltip]="isCollapsed() ? 'Genişlet' : 'Daralt'"
+        tooltipPosition="right"
+        (click)="toggleCollapse()"
+      >
+        <i [class]="isCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"></i>
+      </button>
+
+      <button
+        class="nav-link nav-link--logout"
+        type="button"
+        [pTooltip]="isCollapsed() ? 'Çıkış' : ''"
+        tooltipPosition="right"
+        (click)="logout()"
+      >
+        <i class="pi pi-power-off"></i>
+        <span>Çıkış</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <div class="content">
+    <header class="mobile-bar">
+      <button class="mobile-toggle" type="button" (click)="toggleMobileSidebar()">
+        <i class="pi pi-bars"></i>
+      </button>
+      <span class="mobile-logo">HIS</span>
+    </header>
+
+    <router-outlet />
+  </div>
+</div>

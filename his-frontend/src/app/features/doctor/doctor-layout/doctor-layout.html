@@ -1,0 +1,81 @@
+<div
+  class="layout"
+  [class.collapsed]="isCollapsed()"
+  [class.mobile-open]="isMobileSidebarOpen()"
+>
+  <div class="overlay" (click)="closeMobileSidebar()"></div>
+
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark"><i class="pi pi-building-columns"></i></div>
+      <span class="logo-text">HIS</span>
+    </div>
+
+    <!-- Doktor bilgisi -->
+    <div
+      class="sidebar-user"
+      [pTooltip]="isCollapsed() ? displayName() : ''"
+      tooltipPosition="right"
+    >
+      <p-avatar [label]="initials()" shape="circle" styleClass="s-avatar" />
+      <div class="user-text">
+        <span class="user-name">{{ displayName() }}</span>
+        <span class="user-role">{{ specialization() || 'Doktor' }}</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+          class="nav-link"
+          [pTooltip]="isCollapsed() ? item.label : ''"
+          tooltipPosition="right"
+          (click)="closeMobileSidebar()"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <!-- Alt -->
+    <div class="sidebar-bottom">
+      <button
+        class="collapse-toggle"
+        type="button"
+        [pTooltip]="isCollapsed() ? 'Genişlet' : 'Daralt'"
+        tooltipPosition="right"
+        (click)="toggleCollapse()"
+      >
+        <i [class]="isCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"></i>
+      </button>
+      <button
+        class="nav-link nav-link--logout"
+        type="button"
+        [pTooltip]="isCollapsed() ? 'Çıkış' : ''"
+        tooltipPosition="right"
+        (click)="logout()"
+      >
+        <i class="pi pi-power-off"></i>
+        <span>Çıkış</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <div class="content">
+    <header class="mobile-bar">
+      <button class="mobile-toggle" type="button" (click)="toggleMobileSidebar()">
+        <i class="pi pi-bars"></i>
+      </button>
+      <span class="mobile-logo">HIS · Doktor</span>
+    </header>
+    <router-outlet />
+  </div>
+</div>

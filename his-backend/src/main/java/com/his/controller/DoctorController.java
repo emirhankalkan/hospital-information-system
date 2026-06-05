@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,17 @@ public class DoctorController {
     private final DoctorMapper doctorMapper;
     private final UserService userService;
     private final DepartmentService departmentService;
+
+    // DOCTOR — kendi profilini getirir
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('DOCTOR')")
+    @Operation(summary = "Giriş yapan doktorun profilini getir", description = "JWT token'dan kimlik bilgisini alarak doktor profilini döner.")
+    public ResponseEntity<ApiResponse<DoctorResponse>> getMyProfile() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByUsername(username);
+        Doctor doctor = doctorService.findByUserId(user.getId());
+        return ResponseEntity.ok(ApiResponse.success("Doktor profili getirildi", doctorMapper.toResponse(doctor)));
+    }
 
     // PUBLIC — tüm roller görebilir
     @GetMapping

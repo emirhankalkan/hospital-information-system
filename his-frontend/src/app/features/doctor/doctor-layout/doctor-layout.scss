@@ -1,0 +1,28 @@
+@use '../../../../styles/sidebar-tokens' as l;
+
+// ── Component shell ─────────────────────────
+:host { display: block; }
+
+// ── Doktora özgü stiller ─────────────────────
+.sidebar-user { cursor: default; }
+
+.user-text { transition: opacity l.$ease; }
+
+.user-name {
+  color: l.$bright;
+  font-size: 0.84rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-role {
+  color: l.$accent;
+  font-size: 0.7rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.05rem;
+}

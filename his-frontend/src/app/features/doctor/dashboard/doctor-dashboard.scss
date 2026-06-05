@@ -1,0 +1,223 @@
+.dashboard {
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+:host ::ng-deep .spinner .p-progress-spinner-circle {
+  stroke: #0ea5e9;
+}
+
+/* ── Hero ─────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 14px;
+  padding: 2rem 2.25rem;
+  color: #fff;
+}
+
+.hero-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0ea5e9;
+  margin: 0 0 0.35rem;
+}
+
+h1 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  color: #f1f5f9;
+}
+
+.hero-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ── Stat Kartlar ─────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-card {
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  &--blue .stat-icon { background: rgba(14,165,233,0.1); color: #0ea5e9; }
+  &--green .stat-icon { background: rgba(34,197,94,0.1); color: #22c55e; }
+  &--teal .stat-icon { background: rgba(20,184,166,0.1); color: #14b8a6; }
+}
+
+.stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  margin: 0.2rem 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Section ──────────────────────────────── */
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+}
+
+.see-all {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0ea5e9;
+  text-decoration: none;
+  transition: color 0.15s;
+  &:hover { color: #0284c7; }
+}
+
+/* ── Randevu Liste ────────────────────────── */
+.appt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.appt-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 1rem;
+  border-radius: 9px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  transition: background 0.15s;
+
+  &:hover { background: #f1f5f9; }
+}
+
+.appt-time {
+  width: 3rem;
+  flex-shrink: 0;
+  text-align: center;
+
+  strong {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0ea5e9;
+  }
+}
+
+:host ::ng-deep .appt-avatar.p-avatar {
+  width: 2.1rem !important;
+  height: 2.1rem !important;
+  min-width: 2.1rem;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  flex-shrink: 0;
+}
+
+.appt-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.appt-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appt-dept {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0.1rem 0 0;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .appt-tag { font-size: 0.72rem !important; }
+
+/* ── Boş Durum ────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  color: #94a3b8;
+
+  .pi { font-size: 2rem; }
+  p { font-size: 0.88rem; margin: 0; }
+}
+
+@media (max-width: 640px) {
+  .dashboard { padding: 1rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+}

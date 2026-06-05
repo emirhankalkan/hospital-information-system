@@ -1,0 +1,191 @@
+.page {
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.page-header {
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+  }
+}
+
+.page-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Filtreler ────────────────────────────── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+:host ::ng-deep {
+  .filter-select .p-select,
+  .filter-date .p-datepicker-input-wrapper { min-width: 150px; }
+}
+
+.clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+
+  &:hover { border-color: #0ea5e9; color: #0ea5e9; }
+}
+
+.result-count {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ── Loading / Empty ──────────────────────── */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+:host ::ng-deep .spinner .p-progress-spinner-circle { stroke: #0ea5e9; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  color: #94a3b8;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+
+  .pi { font-size: 2.5rem; }
+  p { font-size: 0.9rem; margin: 0; }
+}
+
+/* ── Randevu Liste ────────────────────────── */
+.appt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.appt-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+  &--completed {
+    border-left: 3px solid #22c55e;
+    opacity: 0.8;
+  }
+
+  &--canceled {
+    border-left: 3px solid #ef4444;
+    opacity: 0.6;
+  }
+}
+
+.appt-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 2.75rem;
+  flex-shrink: 0;
+
+  strong { font-size: 1.1rem; font-weight: 800; color: #0ea5e9; line-height: 1; }
+  span { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+  small { font-size: 0.72rem; color: #94a3b8; margin-top: 0.15rem; }
+}
+
+:host ::ng-deep .appt-avatar.p-avatar {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  min-width: 2.25rem;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  flex-shrink: 0;
+}
+
+.appt-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.appt-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appt-tc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0.1rem 0 0;
+}
+
+.appt-note {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0.1rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .appt-tag { font-size: 0.72rem !important; flex-shrink: 0; }
+
+.appt-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+:host ::ng-deep {
+  .action-btn { font-size: 0.78rem !important; padding: 0.4rem 0.8rem !important; }
+  .action-btn-ghost { font-size: 0.78rem !important; }
+}
+
+@media (max-width: 640px) {
+  .page { padding: 1rem; }
+  .appt-card { flex-wrap: wrap; }
+  .appt-actions { width: 100%; justify-content: flex-end; }
+}

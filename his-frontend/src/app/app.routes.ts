@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { PatientLayout } from './features/patient-portal/patient-layout/patient-layout';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -44,10 +43,25 @@ export const routes: Routes = [
   // --- Doktor ---
   {
     path: 'doctor',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['ROLE_DOCTOR'] },
     loadComponent: () =>
-      import('./features/doctor/my-appointments/my-appointments').then((m) => m.DoctorAppointments),
+      import('./features/doctor/doctor-layout/doctor-layout').then((m) => m.DoctorLayout),
+    canActivate: [authGuard, roleGuard],
+    canActivateChild: [authGuard, roleGuard],
+    data: { roles: ['ROLE_DOCTOR'] },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/doctor/dashboard/doctor-dashboard').then((m) => m.DoctorDashboard),
+      },
+      {
+        path: 'appointments',
+        loadComponent: () =>
+          import('./features/doctor/my-appointments/my-appointments').then(
+            (m) => m.DoctorAppointments,
+          ),
+      },
+    ],
   },
 
   // --- Resepsiyonist ---
@@ -67,7 +81,10 @@ export const routes: Routes = [
   // PatientLayout → sidebar + <router-outlet> shell bileşeni
   {
     path: 'patient',
-    component: PatientLayout,
+    loadComponent: () =>
+      import('./features/patient-portal/patient-layout/patient-layout').then(
+        (m) => m.PatientLayout,
+      ),
     canActivate: [authGuard, roleGuard],
     canActivateChild: [authGuard, roleGuard],
     data: { roles: ['ROLE_PATIENT'] },

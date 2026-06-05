@@ -1,0 +1,83 @@
+<div class="dashboard">
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p-progress-spinner strokeWidth="3" styleClass="spinner" />
+    </div>
+  } @else {
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-text">
+        <p class="hero-label">Hoş geldiniz</p>
+        <h1>Dr. {{ doctor()?.firstName }} {{ doctor()?.lastName }}</h1>
+        <p class="hero-sub">{{ doctor()?.departmentName }} · {{ today | date: 'dd MMMM yyyy, EEEE' }}</p>
+      </div>
+    </section>
+
+    <!-- Stat kartlar -->
+    <div class="stats-grid">
+      <div class="stat-card stat-card--blue">
+        <div class="stat-icon"><i class="pi pi-calendar-clock"></i></div>
+        <div class="stat-body">
+          <p class="stat-value">{{ pendingToday() }}</p>
+          <p class="stat-label">Bugün Bekleyen</p>
+        </div>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-icon"><i class="pi pi-check-circle"></i></div>
+        <div class="stat-body">
+          <p class="stat-value">{{ completedToday() }}</p>
+          <p class="stat-label">Bugün Tamamlanan</p>
+        </div>
+      </div>
+      <div class="stat-card stat-card--teal">
+        <div class="stat-icon"><i class="pi pi-calendar"></i></div>
+        <div class="stat-body">
+          <p class="stat-value">{{ upcomingCount() }}</p>
+          <p class="stat-label">Toplam Aktif</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bugünkü randevular -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Bugünkü Randevular</h2>
+        <a routerLink="/doctor/appointments" class="see-all">Tümünü Gör →</a>
+      </div>
+
+      @if (todayAppointments().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-calendar"></i>
+          <p>Bugün randevunuz bulunmuyor.</p>
+        </div>
+      } @else {
+        <div class="appt-list">
+          @for (appt of todayAppointments(); track appt.id) {
+            <div class="appt-card">
+              <div class="appt-time">
+                <strong>{{ appt.appointmentTime.slice(0, 5) }}</strong>
+              </div>
+              <p-avatar
+                [label]="patientInitials(appt)"
+                shape="circle"
+                styleClass="appt-avatar"
+              />
+              <div class="appt-info">
+                <p class="appt-name">{{ patientName(appt) }}</p>
+                <p class="appt-dept">{{ appt.departmentName || appt.doctorSpecialization || '' }}</p>
+              </div>
+              <p-tag
+                [value]="getStatusLabel(appt.status)"
+                [severity]="getStatusSeverity(appt.status)"
+                styleClass="appt-tag"
+              />
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+  }
+</div>

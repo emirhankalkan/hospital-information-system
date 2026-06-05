@@ -1,0 +1,119 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1>Randevularım</h1>
+      <p class="page-sub">Tüm randevularınızı görüntüleyin ve durumlarını güncelleyin.</p>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <p-message severity="success" [text]="successMessage()" styleClass="w-full" />
+  }
+  @if (errorMessage()) {
+    <p-message severity="error" [text]="errorMessage()" styleClass="w-full" />
+  }
+
+  <!-- Filtreler -->
+  <div class="filters">
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filterStatus()"
+      (ngModelChange)="filterStatus.set($event)"
+      placeholder="Durum"
+      styleClass="filter-select"
+    />
+    <p-date-picker
+      [ngModel]="filterDate()"
+      (ngModelChange)="filterDate.set($event)"
+      placeholder="Tarih seç"
+      dateFormat="dd.mm.yy"
+      [showClear]="true"
+      styleClass="filter-date"
+    />
+    @if (filterStatus() !== 'ALL' || filterDate()) {
+      <button class="clear-btn" type="button" (click)="clearFilters()">
+        <i class="pi pi-times"></i> Temizle
+      </button>
+    }
+    <span class="result-count">{{ filtered().length }} randevu</span>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p-progress-spinner strokeWidth="3" styleClass="spinner" />
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-calendar"></i>
+      <p>Gösterilecek randevu yok.</p>
+    </div>
+  } @else {
+    <div class="appt-list">
+      @for (appt of filtered(); track appt.id) {
+        <div class="appt-card" [class.appt-card--completed]="appt.status === 'COMPLETED'" [class.appt-card--canceled]="appt.status === 'CANCELED'">
+
+          <!-- Tarih -->
+          <div class="appt-date">
+            <strong>{{ appt.appointmentDate | date: 'dd' }}</strong>
+            <span>{{ appt.appointmentDate | date: 'MMM' }}</span>
+            <small>{{ appt.appointmentTime.slice(0, 5) }}</small>
+          </div>
+
+          <!-- Hasta -->
+          <p-avatar [label]="patientInitials(appt)" shape="circle" styleClass="appt-avatar" />
+
+          <div class="appt-info">
+            <p class="appt-name">{{ patientName(appt) }}</p>
+            @if (appt.patientTcNo) {
+              <p class="appt-tc">TC: {{ appt.patientTcNo }}</p>
+            }
+            @if (appt.notes) {
+              <p class="appt-note"><i class="pi pi-file-edit"></i> {{ appt.notes }}</p>
+            }
+          </div>
+
+          <!-- Durum -->
+          <p-tag
+            [value]="getStatusLabel(appt.status)"
+            [severity]="getStatusSeverity(appt.status)"
+            styleClass="appt-tag"
+          />
+
+          <!-- Aksiyon butonları — sadece SCHEDULED -->
+          @if (appt.status === 'SCHEDULED') {
+            <div class="appt-actions">
+              <p-button
+                icon="pi pi-check"
+                label="Tamamlandı"
+                severity="success"
+                size="small"
+                styleClass="action-btn"
+                [loading]="updatingId() === appt.id"
+                [disabled]="updatingId() !== null"
+                pTooltip="Tamamlandı olarak işaretle"
+                tooltipPosition="top"
+                (onClick)="markCompleted(appt)"
+              />
+              <p-button
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                [text]="true"
+                styleClass="action-btn-ghost"
+                [loading]="updatingId() === appt.id"
+                [disabled]="updatingId() !== null"
+                pTooltip="İptal Et"
+                tooltipPosition="top"
+                (onClick)="markCanceled(appt)"
+              />
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+</div>

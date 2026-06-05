@@ -1,0 +1,237 @@
+// ── Design tokens — component SCSS'lerinden @use ile erişilebilir ──────────
+@use './sidebar-tokens' as *;
+
+// ── Global sidebar CSS — styles.scss @use ile yükler ───────────────────────
+// :host ve ::ng-deep burada yok; bunlar component SCSS'de kalır.
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  margin-left: $w;
+  min-height: 100vh;
+  background: #f1f5f9;
+  transition: margin-left $ease;
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: $w;
+  background: $bg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 200;
+  transition: width $ease;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.4rem 1.1rem 1rem;
+  white-space: nowrap;
+}
+
+.logo-mark {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: $accent;
+  color: #fff;
+  font-size: 0.88rem;
+}
+
+.logo-text {
+  color: $bright;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  transition: opacity $ease;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 1rem 0.9rem;
+  white-space: nowrap;
+  border-bottom: 1px solid $sep;
+  margin-bottom: 0.5rem;
+}
+
+// PrimeNG avatar override — global'de ::ng-deep gerekmez
+.s-avatar.p-avatar {
+  width: 1.9rem !important;
+  height: 1.9rem !important;
+  min-width: 1.9rem;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  background: $accent !important;
+  color: #fff !important;
+  flex-shrink: 0;
+}
+
+.user-text {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nav {
+  flex: 1;
+  padding: 0 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 7px;
+  color: $muted;
+  font-size: 0.84rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: background $ease, color $ease;
+
+  .pi { font-size: 0.9rem; flex-shrink: 0; width: 1rem; text-align: center; }
+  span { overflow: hidden; text-overflow: ellipsis; transition: opacity $ease; }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: $bright;
+  }
+
+  &.active {
+    background: $active-bg;
+    color: $accent;
+    font-weight: 600;
+    .pi { color: $accent; }
+  }
+
+  &--logout:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #fca5a5;
+  }
+}
+
+.sidebar-bottom {
+  padding: 0.5rem 0.6rem 1rem;
+  border-top: 1px solid $sep;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 0.4rem 0.7rem;
+  border: none;
+  background: transparent;
+  color: $muted;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 6px;
+  transition: color $ease, background $ease;
+  margin-bottom: 0.2rem;
+
+  &:hover { color: $soft; background: rgba(255, 255, 255, 0.03); }
+}
+
+.layout.collapsed {
+  .sidebar { width: $w-sm; }
+  .content { margin-left: $w-sm; }
+  .logo-text, .user-text { opacity: 0; pointer-events: none; }
+  .nav-link span { opacity: 0; pointer-events: none; }
+  .nav-link { justify-content: center; padding: 0.65rem; gap: 0; }
+  .collapse-toggle { justify-content: center; }
+  .sidebar-user { justify-content: center; padding: 0.65rem 0; }
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 150;
+  backdrop-filter: blur(2px);
+}
+
+.mobile-bar {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  background: $bg;
+  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mobile-toggle {
+  border: none;
+  background: transparent;
+  color: $soft;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  &:hover { color: $bright; }
+}
+
+.mobile-logo {
+  color: $bright;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform $ease;
+    width: $w !important;
+  }
+  .layout.mobile-open {
+    .sidebar { transform: translateX(0); }
+    .overlay { display: block; }
+  }
+  .content { margin-left: 0 !important; }
+  .mobile-bar { display: flex; }
+  .collapse-toggle { display: none; }
+
+  .layout.collapsed {
+    .nav-link { justify-content: flex-start; padding: 0.6rem 0.7rem; gap: 0.75rem; }
+    .sidebar-user { justify-content: flex-start; padding: 0.6rem 1rem 0.9rem; }
+    .logo-text, .user-text, .nav-link span { opacity: 1; pointer-events: auto; }
+  }
+}

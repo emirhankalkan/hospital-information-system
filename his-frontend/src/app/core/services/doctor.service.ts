@@ -11,6 +11,12 @@ export class DoctorService {
   private readonly http = inject(HttpClient);
   private readonly doctorsUrl = `${environment.apiUrl}/doctors`;
 
+  getMyProfile(): Observable<Doctor> {
+    return this.http
+      .get<ApiResponse<Doctor>>(`${this.doctorsUrl}/me`)
+      .pipe(map((r) => r.data));
+  }
+
   getAll(): Observable<Doctor[]> {
     return this.http
       .get<ApiResponse<Doctor[]>>(this.doctorsUrl)

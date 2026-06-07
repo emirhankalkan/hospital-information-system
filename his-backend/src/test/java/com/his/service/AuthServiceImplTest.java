@@ -92,7 +92,8 @@ class AuthServiceImplTest {
     @BeforeEach
     void setUp() {
         validRegisterRequest = new RegisterRequest();
-        validRegisterRequest.setFullName("Test User");
+        validRegisterRequest.setFirstName("Test");
+        validRegisterRequest.setLastName("User");
         validRegisterRequest.setUsername("testuser");
         validRegisterRequest.setEmail("test@test.com");
         validRegisterRequest.setPassword("password123");

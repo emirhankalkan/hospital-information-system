@@ -16,9 +16,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class RegisterRequest {
 
-    @NotBlank(message = "Ad soyad boş olamaz")
-    @Size(min = 3, max = 100, message = "Ad soyad 3-100 karakter arasında olmalıdır")
-    private String fullName;
+    @NotBlank(message = "Ad boş olamaz")
+    @Size(min = 2, max = 50, message = "Ad 2-50 karakter arasında olmalıdır")
+    private String firstName;
+
+    @NotBlank(message = "Soyad boş olamaz")
+    @Size(min = 2, max = 50, message = "Soyad 2-50 karakter arasında olmalıdır")
+    private String lastName;
 
     @NotBlank(message = "Kullanıcı adı boş olamaz")
     @Size(min = 3, max = 50, message = "Kullanıcı adı 3-50 karakter arasında olmalıdır")

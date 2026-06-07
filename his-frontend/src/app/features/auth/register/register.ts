@@ -36,7 +36,8 @@ export class Register {
 
   readonly registerForm: FormGroup = this.fb.group(
     {
-      fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -53,10 +54,16 @@ export class Register {
     this.isLoading.set(true);
     this.successMessage.set('');
     this.errorMessage.set('');
-    const { fullName, email, password } = this.registerForm.value;
+    const { firstName, lastName, email, password } = this.registerForm.value;
 
     this.authService
-      .register({ fullName, username: this.createTechnicalUsername(email), email, password })
+      .register({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        username: this.createTechnicalUsername(email),
+        email,
+        password,
+      })
       .subscribe({
         next: (response) => {
           this.isLoading.set(false);

@@ -140,14 +140,14 @@ public class PatientServiceImpl implements PatientService {
 
     private Patient buildPatientFromUser(User user) {
         String fullName = user.getFullName() == null || user.getFullName().isBlank()
-                ? user.getUsername()
+                ? "Hasta Profili"
                 : user.getFullName().trim();
         String[] nameParts = fullName.split("\\s+", 2);
 
         Patient patient = new Patient();
         patient.setUser(user);
         patient.setFirstName(nameParts[0]);
-        patient.setLastName(nameParts.length > 1 ? nameParts[1] : "-");
+        patient.setLastName(nameParts.length > 1 ? nameParts[1] : "Belirtilmedi");
         patient.setEmail(user.getEmail());
         patient.setIsDeleted(false);
         return patient;

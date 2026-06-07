@@ -106,7 +106,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setFullName(request.getFullName());
+        user.setFullName(buildFullName(request.getFirstName(), request.getLastName()));
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setIsActive(true);
@@ -114,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(resolveRoles(request.getRoles()));
 
         User savedUser = userRepository.save(user);
-        patientRepository.save(buildPatientProfile(savedUser));
+        patientRepository.save(buildPatientProfile(savedUser, request));
 
         String verificationToken = createAccountToken(
                 savedUser,
@@ -124,15 +124,18 @@ public class AuthServiceImpl implements AuthService {
         emailService.sendEmailVerification(savedUser, verificationToken);
     }
 
-    private Patient buildPatientProfile(User user) {
-        String[] nameParts = user.getFullName().trim().split("\\s+", 2);
+    private Patient buildPatientProfile(User user, RegisterRequest request) {
         Patient patient = new Patient();
         patient.setUser(user);
-        patient.setFirstName(nameParts[0]);
-        patient.setLastName(nameParts.length > 1 ? nameParts[1] : "-");
+        patient.setFirstName(request.getFirstName().trim());
+        patient.setLastName(request.getLastName().trim());
         patient.setEmail(user.getEmail());
         patient.setIsDeleted(false);
         return patient;
+    }
+
+    private String buildFullName(String firstName, String lastName) {
+        return firstName.trim() + " " + lastName.trim();
     }
 
     @Override

@@ -23,14 +23,26 @@
       }
 
       <div class="auth-field">
-        <label for="fullName">Ad Soyad</label>
+        <label for="firstName">Ad</label>
         <input
           pInputText
-          id="fullName"
-          formControlName="fullName"
+          id="firstName"
+          formControlName="firstName"
           type="text"
           class="auth-input"
-          placeholder="Ad soyadınızı giriniz"
+          placeholder="Adınızı giriniz"
+        />
+      </div>
+
+      <div class="auth-field">
+        <label for="lastName">Soyad</label>
+        <input
+          pInputText
+          id="lastName"
+          formControlName="lastName"
+          type="text"
+          class="auth-input"
+          placeholder="Soyadınızı giriniz"
         />
       </div>
 
